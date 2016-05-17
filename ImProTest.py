@@ -15,7 +15,7 @@ AltRef = 400
 YawRef = 207.71 
 curWpNo = 3
 GenData = True							# Genarate Data
-parLdmrkNos = 012 #'013','023','234'	# Used to generate data with partial landmarks
+parLdmrkNos = 0 #012 013 023 234 	# Used to generate data with partial landmarks
 Im = cv2.imread('Database/photo_'+str(curWpNo)+'_auto.jpg')
 # End of Image processing Thresholds
 
