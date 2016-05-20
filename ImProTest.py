@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 # Image processing Thresholds
 BwAreaTh = np.array(2,dtype = 'float')
-NLdmrk = [3]							# Number of candidate Landmarks to be detected
+NLdmrk = [4]							# Number of candidate Landmarks to be detected
 ImageTh = 0.004 						# Used in LdmrkDet.LD: To prevent excessive whites in binary image
 BinaryTh = 110							# Initial binary threshold to  adaptively binarize an image
 BinThIncDec = 5							# Increase or decrease binary threshold from intitial value (BinaryTh) (used in Algorithm 1)
@@ -15,7 +15,7 @@ AltRef = 400
 YawRef = 207.71 
 curWpNo = 1
 GenData = True							# Genarate Data
-parLdmrkNos = '012' #012 013 023 234 	# Used to generate data with partial landmarks
+parLdmrkNos = '123'	#012 013 023 123 	# Used to generate data with partial landmarks
 Im = cv2.imread('Database/photo_'+str(curWpNo)+ '_'+parLdmrkNos+'_auto.jpg')
 # End of Image processing Thresholds
 
@@ -26,5 +26,5 @@ print 'Thresholds = ',Thresholds
 # End of Create Threshold Array
 Yaw = YawRef
 import ImageProcessing
-ImageProcessing.LoadData(curWpNo)
+ImageProcessing.LoadData(curWpNo,parLdmrkNos)
 IpCalDrift = ImageProcessing.IP(Im,Yaw,AltRef,YawRef,curWpNo,GenData,parLdmrkNos)
