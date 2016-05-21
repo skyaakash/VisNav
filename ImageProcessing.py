@@ -34,7 +34,8 @@ RefPt0 = 0
 RefPt1 = 0
 AltRef0 = 0
 YawRef0 = 0
-def LoadData(curWpNo,parLdmrks):
+def LoadData(curWpNo,GenData,parLdmrks):
+	print 'Loading Data'
 	global Data,NLdmrk,ImCropTh,ImageTh,BinaryTh,BinThIncDec,BwAreaTh,LdmrkAngTh,WpAngTh,WpSiRatTh,LdmrkAngs0,LdmrkAngs1,\
 			SoS0,SoS1,SUM0,SUM1,WpAngs0,WpAngs1,WpSideRat0,WpSideRat1,RefPt0,RefPt1
 	Data = np.load('Database/Wp'+str(curWpNo)+'Data.npy')
@@ -49,36 +50,37 @@ def LoadData(curWpNo,parLdmrks):
 	WpAngTh = Thresholds[7]
 	WpSiRatTh = Thresholds[8]
 	#Variables for Generating Data
-	if parLdmrks == '0':
-		LdmrkAngs0 = [[0.0 for x in range(NLdmrk-1)] for y in range(NLdmrk)]
-		LdmrkAngs1 = [[[0.0 for x in range(NLdmrk-2)] for y in range(NLdmrk-1)] for z in range(NLdmrk)]
-		SoS0 = 0.0
-		SoS1 = [0.0 for x in range(NLdmrk)]
-		SUM0 = [[0 for x in range(4*ImCropTh[1])] for y in range(NLdmrk)]
-		SUM1 = [[[0 for x in range(4*ImCropTh[1])] for y in range(NLdmrk-1)] for z in range(NLdmrk)]
-		WpAngs0 = [0.0 for x in range(NLdmrk)]
-		WpAngs1 = [[0.0 for x in range(NLdmrk-1)] for y in range(NLdmrk)]
-		WpSideRat0 = [0.0 for x in range(NLdmrk)]
-		WpSideRat1 = [[0.0 for x in range(NLdmrk-1)] for y in range(NLdmrk)]
-		RefPt0 = [0.0, 0.0]
-		RefPt1 = [[0.0 for x in range(2)] for y in range(NLdmrk)]
-		AltRef0 = 1.0
-		YawRef0 = 0.0
-	else:
-		LdmrkAngs0 = Data[0][0]
-		LdmrkAngs1 = Data[0][1]
-		SoS0 = Data[1][0]
-		SoS1 = Data[1][1]
-		SUM0 = Data[2][0]
-		SUM1 = Data[2][1]
-		WpAngs0 = Data[3][0]
-		WpAngs1 = Data[3][1]
-		WpSideRat0 = Data[4][0]
-		WpSideRat1 = Data[4][1]
-		RefPt0 = Data[5][0]
-		RefPt1 = Data[5][1]
-		AltRef0 = Data[6]
-		YawRef0 = Data[7]
+	if GenData == True:
+		if parLdmrks == '0':
+			LdmrkAngs0 = [[0.0 for x in range(NLdmrk-1)] for y in range(NLdmrk)]
+			LdmrkAngs1 = [[[0.0 for x in range(NLdmrk-2)] for y in range(NLdmrk-1)] for z in range(NLdmrk)]
+			SoS0 = 0.0
+			SoS1 = [0.0 for x in range(NLdmrk)]
+			SUM0 = [[0 for x in range(4*ImCropTh[1])] for y in range(NLdmrk)]
+			SUM1 = [[[0 for x in range(4*ImCropTh[1])] for y in range(NLdmrk-1)] for z in range(NLdmrk)]
+			WpAngs0 = [0.0 for x in range(NLdmrk)]
+			WpAngs1 = [[0.0 for x in range(NLdmrk-1)] for y in range(NLdmrk)]
+			WpSideRat0 = [0.0 for x in range(NLdmrk)]
+			WpSideRat1 = [[0.0 for x in range(NLdmrk-1)] for y in range(NLdmrk)]
+			RefPt0 = [0.0, 0.0]
+			RefPt1 = [[0.0 for x in range(2)] for y in range(NLdmrk)]
+			AltRef0 = 1.0
+			YawRef0 = 0.0
+		else:
+			LdmrkAngs0 = Data[0][0]
+			LdmrkAngs1 = Data[0][1]
+			SoS0 = Data[1][0]
+			SoS1 = Data[1][1]
+			SUM0 = Data[2][0]
+			SUM1 = Data[2][1]
+			WpAngs0 = Data[3][0]
+			WpAngs1 = Data[3][1]
+			WpSideRat0 = Data[4][0]
+			WpSideRat1 = Data[4][1]
+			RefPt0 = Data[5][0]
+			RefPt1 = Data[5][1]
+			AltRef0 = Data[6]
+			YawRef0 = Data[7]
 
 # AH includes
 import math
@@ -235,7 +237,6 @@ def FS(Ig,Xlm,Ylm,ImScale,SUMdb,RotAng,DeLms,n,x):
 			np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 			SUMdb = Data[2][1][idx]
 #			SUMdb = SUM
-			print 'SUMdb = ',SUMdb
 			
 #	print '........................', time.time() - st_ti_AnHi, "Time required for performing Angular Histogram ...."	
 	np.save('FeatSig.npy',SUM)	
@@ -306,10 +307,7 @@ def LL(LdmrkCen,LdmrkAngsDb,k,x):
 			LdmrkAngsDb = Data[0][0]
 		else:
 			if parLdmrks == '012':
-				print 'LdmrkAngsCal = ',LdmrkAngsCal
-				print 'LdmrkAngs1[0] = ',LdmrkAngs1[0]
 				LdmrkAngs1[0] = LdmrkAngsCal
-				print 'LdmrkAngs1[0] = ',LdmrkAngs1[0]
 				idx = 0
 			elif parLdmrks == '013':
 				LdmrkAngs1[1] = LdmrkAngsCal
@@ -318,11 +316,8 @@ def LL(LdmrkCen,LdmrkAngsDb,k,x):
 				LdmrkAngs1[2] = LdmrkAngsCal
 				idx = 2
 			elif parLdmrks == '123':
-				print 'LdmrkAngs1[3]',LdmrkAngs1[3]
 				LdmrkAngs1[3] = LdmrkAngsCal
-				print 'LdmrkAngs1[3]',LdmrkAngs1[3]
 				idx = 3
-			print 'LdmrkAngs1 = ',LdmrkAngs1
 			Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
 			np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 			LdmrkAngsDb = Data[0][1][idx]
@@ -331,21 +326,17 @@ def LL(LdmrkCen,LdmrkAngsDb,k,x):
 	for i in range(0,l):
 		for j in range(0,l):
 			AngDiff = abs(np.subtract(LdmrkAngsCal[i,:],LdmrkAngsDb[j,:]))
-			print 'AngDiff =',AngDiff
 			DeLms[i] = -1
 			Xlm[i] = LdmrkCen[j,0]
 			Ylm[i] = LdmrkCen[j,1]
 			if np.all(AngDiff < LdmrkAngTh):
-				print 'alreadyInc = ',alreadyInc
 				if j in alreadyInc:
-					print 'continue'
 					continue
 				else:
 					DeLms[i] = j
 					Xlm[i] = LdmrkCen[j,0]
 					Ylm[i] = LdmrkCen[j,1]
 					alreadyInc = np.append(alreadyInc,j)
-					print 'broken'
 					break
 		RotAng[i] = BasicFns.Angle2Pt(Xlm[i],Ylm[i],CenCal[0],CenCal[1])		
 #	print 'RotAng',RotAng	
@@ -444,13 +435,14 @@ def LD(Ig):
 			for j in range(0,len(PosLdmrks)):
 				LdmrkCen[j,:] = CanLdmrkCen[PosLdmrks[j]] 	
 			CenCal,Xlm,Ylm,DeLms,RotAng = LL(LdmrkCen,Data[0][0],k,x) 	# Data[0] = Ldmrk_Angs
+			DeLms = np.array(DeLms)
+			NonNegEls = DeLms[(DeLms >= 0)].size
 			if NonNegEls == NLdmrk:
 				SoS = BasicFns.SumSides(Xlm,Ylm)
 				if GenData == True:
 					SoS0 = SoS
 					Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
 					np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
-#				print 'SoS',SoS
 				ImScale  = Data[1][0]/SoS			# Data[1] = Ldmrk_Sides_Sum
 				MatPairs,SUM,cind,cor = FS(Ig,Xlm,Ylm,ImScale,Data[2][0],RotAng,DeLms,NumCanLdmrk,x)	# Data[2] = Feat_Sigs
 				NonNegEls1 = MatPairs[(MatPairs >= 0)].size
@@ -486,12 +478,11 @@ def LD(Ig):
 									SoS1[3] = SoS
 								Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
 								np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
-#							print 'SoS',SoS
 							ImScale = float(Data[1][NLdmrk-k][x])/SoS
 							MatPairs,SUM,cind,cor = FS(Ig,Xlm,Ylm,ImScale,Data[2][NLdmrk-k][x],RotAng,DeLms,k,x)
 							NonNegEls1 = MatPairs[(MatPairs >= 0)].size
 							if NonNegEls1 == k*2:
-								print "Successful Detection of", k ,"landmarks",BasicFns.WhichLdmrkDeted(NumCanLdmrk,NLdmrk,k,x)
+								print "Successful Detection of", k ,"landmarks",BasicFns.WhichLdmrkDeted(NumCanLdmrk,NLdmrk,k,x), "from", NumCanLdmrk, "landamrks"
 								BrFlag = True
 								break
 					if BrFlag == True:
@@ -531,8 +522,6 @@ def LD(Ig):
 						idx = 3
 					Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
 					np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)	
-					print 'Data[1][1][idx] = ',Data[1][1][idx]
-					print 'SoS = ',SoS
 					ImScale  = Data[1][1][idx]/SoS
 			else:		
 				ImScale  = Data[1][0]/SoS		# Data[1] = Ldmrk_Sides_Sum
@@ -574,7 +563,7 @@ def LD(Ig):
 							MatPairs,SUM,cind,cor = FS(Ig,Xlm,Ylm,ImScale,Data[2][NLdmrk-k][x],RotAng,DeLms,k,x)
 							NonNegEls1 = MatPairs[(MatPairs >= 0)].size
 							if NonNegEls1 == k*2:
-								print "Successful Detection of", k ,"landmarks",BasicFns.WhichLdmrkDeted(NumCanLdmrk,NLdmrk,k,x)
+								print "Successful Detection of", k ,"landmarks",BasicFns.WhichLdmrkDeted(NumCanLdmrk,NLdmrk,k,x), "from", NumCanLdmrk, "landamrks"
 								BrFlag = True
 								break
 					if BrFlag == True:
@@ -589,7 +578,6 @@ def LD(Ig):
 		nums = np.arange(NumCanLdmrk)
 		for k in range(NumCanLdmrk,2,-1):
 			combs = set(itertools.combinations(nums,k))
-			print 'combs',combs
 			for i in range(0,len(combs)):
 				PosLdmrks = list(combs)[i]					# Possible Landmarks
 				LdmrkCen = np.zeros((len(PosLdmrks),2), dtype='float')
@@ -612,12 +600,11 @@ def LD(Ig):
 								SoS1[3] = SoS
 							Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
 							np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
-#						print 'SoS',SoS
 						ImScale = float(Data[1][NLdmrk-k][x])/SoS
 						MatPairs,SUM,cind,cor = FS(Ig,Xlm,Ylm,ImScale,Data[2][NLdmrk-k][x],RotAng,DeLms,k,x)
 						NonNegEls1 = MatPairs[(MatPairs >= 0)].size
 						if NonNegEls1 == k*2:
-							print "Successful Detection of", k ,"landmarks",BasicFns.WhichLdmrkDeted(NumCanLdmrk,NLdmrk,k,x)
+							print "Successful Detection of", k ,"landmarks",BasicFns.WhichLdmrkDeted(NumCanLdmrk,NLdmrk,k,x), "from", NumCanLdmrk, "landamrks"
 							BrFlag = True
 							break
 				if BrFlag == True:
@@ -672,9 +659,6 @@ def WD(Im,Xlm,Ylm,x,k):
 				AngDiff = abs(Data[3][1][idx] - WpAngsCal)
 				SideDiff = abs(Data[4][1][idx] - WpSideRatCal) 
 		else:		
-			print 'WpAngsCal = ', WpAngsCal
-			print 'Data[3] =',Data[3]
-			print 'Data[4] =',Data[4]
 			AngDiff = abs(Data[3][0] - WpAngsCal)
 			SideDiff = abs(Data[4][0] - WpSideRatCal) 
 	else:
@@ -693,8 +677,8 @@ def WD(Im,Xlm,Ylm,x,k):
 				WpSideRat1[:][3] = WpSideRatCal
 			Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
 			np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
-		AngDiff = abs(Data[NLdmrk-k][x] - WpAngsCal)
-		SideDiff = abs(Data[NLdmrk-k][x] - WpSideRatCal)
+		AngDiff = abs(Data[3][NLdmrk-k][x] - WpAngsCal)
+		SideDiff = abs(Data[4][NLdmrk-k][x] - WpSideRatCal)
 #	print 'AngDiff',AngDiff
 #	print 'SideDiff',SideDiff
 	if np.all(AngDiff < WpAngTh) & np.all(SideDiff < WpSiRatTh):
@@ -715,6 +699,7 @@ def IP(Im,Yaw,AltRef,YawRef,cWpNo,gData,pLdmrks):
 	Ig = cv2.cvtColor(Im, cv2.COLOR_RGB2GRAY)	
 	
 	Ib,cor,Xlm,Ylm,CenCal,CanLdmrkCen,MatPairs,SUM,ImScale,SoS,x,k = LD(Ig)
+	print '########################x =',x
 	if x == -1:		# This condition is active when all landmarks in DB are detected.
 		refptDB = Data[5][0]
 	else:			# This condition is active when fewer landmarks are detected.

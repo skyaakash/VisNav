@@ -11,12 +11,15 @@ LdmrkAngTh = 5							# Threshold of Second Stage Landmark Detection
 ImCropTh = [100,36]
 WpAngTh = 5								# Threshold of Waypoint Angles
 WpSiRatTh = 0.1							# Threshold of Waypoint Side Ratio
+
+#End of Image processing Thresholds
 AltRef = 400
 YawRef = 207.71 
-curWpNo = 1
+
 GenData = True							# Genarate Data
-parLdmrkNos = '123'	#012 013 023 123 	# Used to generate data with partial landmarks
-Im = cv2.imread('Database/photo_'+str(curWpNo)+ '_'+parLdmrkNos+'_auto.jpg')
+curWpNo = 1
+parLdmrkNos = '0'	#012 013 023 123 	# Used to generate data with partial landmarks
+Im = cv2.imread('Database/waypoint_'+str(curWpNo)+ '_'+parLdmrkNos+'.jpg')
 # End of Image processing Thresholds
 
 # Create Threshold Array
@@ -26,5 +29,5 @@ print 'Thresholds = ',Thresholds
 # End of Create Threshold Array
 Yaw = YawRef
 import ImageProcessing
-ImageProcessing.LoadData(curWpNo,parLdmrkNos)
+ImageProcessing.LoadData(curWpNo,GenData,parLdmrkNos)
 IpCalDrift = ImageProcessing.IP(Im,Yaw,AltRef,YawRef,curWpNo,GenData,parLdmrkNos)
