@@ -32,8 +32,8 @@ WpSideRat0 = 0
 WpSideRat1 = 0
 RefPt0 = 0
 RefPt1 = 0
-AltRef0 = 0
-YawRef0 = 0
+AltRef = 0
+YawRef = 0
 def LoadData(curWpNo,GenData,parLdmrks):
 	print 'Loading Data'
 	global Data,NLdmrk,ImCropTh,ImageTh,BinaryTh,BinThIncDec,BwAreaTh,LdmrkAngTh,WpAngTh,WpSiRatTh,LdmrkAngs0,LdmrkAngs1,\
@@ -64,8 +64,8 @@ def LoadData(curWpNo,GenData,parLdmrks):
 			WpSideRat1 = [[0.0 for x in range(NLdmrk-1)] for y in range(NLdmrk)]
 			RefPt0 = [0.0, 0.0]
 			RefPt1 = [[0.0 for x in range(2)] for y in range(NLdmrk)]
-			AltRef0 = 1.0
-			YawRef0 = 0.0
+			AltRef = 1.0
+			YawRef = 0.0
 		else:
 			LdmrkAngs0 = Data[0][0]
 			LdmrkAngs1 = Data[0][1]
@@ -79,8 +79,8 @@ def LoadData(curWpNo,GenData,parLdmrks):
 			WpSideRat1 = Data[4][1]
 			RefPt0 = Data[5][0]
 			RefPt1 = Data[5][1]
-			AltRef0 = Data[6]
-			YawRef0 = Data[7]
+			AltRef = Data[6]
+			YawRef = Data[7]
 
 # AH includes
 import math
@@ -217,7 +217,7 @@ def FS(Ig,Xlm,Ylm,ImScale,SUMdb,RotAng,DeLms,n,x):
 	if GenData == True:
 		if parLdmrks == '0':
 			SUM0 = SUM
-			Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+			Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 			np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 			SUMdb = Data[2][0]
 		else:
@@ -233,13 +233,13 @@ def FS(Ig,Xlm,Ylm,ImScale,SUMdb,RotAng,DeLms,n,x):
 			elif parLdmrks == '123':
 				SUM1[3] = SUM
 				idx = 3
-			Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+			Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 			np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 			SUMdb = Data[2][1][idx]
 #			SUMdb = SUM
 			
 #	print '........................', time.time() - st_ti_AnHi, "Time required for performing Angular Histogram ...."	
-	np.save('FeatSig.npy',SUM)	
+#	np.save('FeatSig.npy',SUM)	
 	S1h = len(SUM)
 	S1w = len(SUM[0])
 
@@ -302,7 +302,7 @@ def LL(LdmrkCen,LdmrkAngsDb,k,x):
 	if GenData == True:
 		if parLdmrks == '0':
 			LdmrkAngs0 = LdmrkAngsCal
-			Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+			Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 			np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 			LdmrkAngsDb = Data[0][0]
 		else:
@@ -318,7 +318,7 @@ def LL(LdmrkCen,LdmrkAngsDb,k,x):
 			elif parLdmrks == '123':
 				LdmrkAngs1[3] = LdmrkAngsCal
 				idx = 3
-			Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+			Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 			np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 			LdmrkAngsDb = Data[0][1][idx]
 
@@ -355,8 +355,9 @@ def LD(Ig):
 #	cv2.waitKey(2000)
 	while 1:
 		_,Ib = cv2.threshold(Ig, BinaryTh, 1, cv2.THRESH_BINARY)
-		cv2.imshow('Binary Image',Ib*255)
-		cv2.waitKey(100)
+		if GenData == True:
+			cv2.imshow('Binary Image',Ib*255)
+			cv2.waitKey(100)
 		SumBin = sum(sum(Ib))
 #		print 'SumBin =',SumBin
 		BinImFactor = float(SumBin)/(h*w) 
@@ -379,8 +380,9 @@ def LD(Ig):
 		if BinCounter > 4:
 			break
 		BinaryTh = BinaryTh + BinThIncDec			
-	cv2.imshow('Binary Image',Ib*255)
-	cv2.waitKey(500)
+	if GenData == True:
+		cv2.imshow('Binary Image',Ib*255)
+		cv2.waitKey(500)
 			
 	#modified codes end here (20/4/15)											
 #	print 'BinImFactor after first loop=',BinImFactor
@@ -389,8 +391,9 @@ def LD(Ig):
 		_,Ib = cv2.threshold(Ig, BinaryTh, 1, cv2.THRESH_BINARY)
 		element = cv2.getStructuringElement(cv2.MORPH_CROSS,(4,4))
 		Ib = cv2.erode(Ib,element);
-		cv2.imshow('Binary Image after erosion',Ib*255)
-		cv2.waitKey(100)
+		if GenData == True:
+			cv2.imshow('Binary Image after erosion',Ib*255)
+			cv2.waitKey(100)
 		_,cs,_ = cv2.findContours(Ib.astype('uint8'), mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE )
 		BinaryTh = BinaryTh + 1
 #		print 'BinaryTh =',BinaryTh
@@ -407,8 +410,9 @@ def LD(Ig):
 		NumCanLdmrk = len(cs)
 	CanLdmrkCen = []
 #	print 'BinImFactor Final =',BinImFactor
-	cv2.imshow('Binary Image',Ib*255)
-	cv2.waitKey(500)	
+	if GenData == True:
+		cv2.imshow('Binary Image',Ib*255)
+		cv2.waitKey(500)	
 	print 'NumCanLdmrk=',NumCanLdmrk
 	for i in range(0,NumCanLdmrk):
 		c = cs[i]
@@ -441,7 +445,7 @@ def LD(Ig):
 				SoS = BasicFns.SumSides(Xlm,Ylm)
 				if GenData == True:
 					SoS0 = SoS
-					Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+					Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 					np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 				ImScale  = Data[1][0]/SoS			# Data[1] = Ldmrk_Sides_Sum
 				MatPairs,SUM,cind,cor = FS(Ig,Xlm,Ylm,ImScale,Data[2][0],RotAng,DeLms,NumCanLdmrk,x)	# Data[2] = Feat_Sigs
@@ -476,7 +480,7 @@ def LD(Ig):
 									SoS1[2] = SoS
 								elif parLdmrks == '123':
 									SoS1[3] = SoS
-								Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+								Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 								np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 							ImScale = float(Data[1][NLdmrk-k][x])/SoS
 							MatPairs,SUM,cind,cor = FS(Ig,Xlm,Ylm,ImScale,Data[2][NLdmrk-k][x],RotAng,DeLms,k,x)
@@ -504,7 +508,7 @@ def LD(Ig):
 			if (GenData == True):
 				if (parLdmrks == '0'):
 					SoS0 = SoS
-					Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+					Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 					np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 					ImScale  = 1
 				else:
@@ -520,7 +524,7 @@ def LD(Ig):
 					elif parLdmrks == '123':
 						SoS1[3] = SoS
 						idx = 3
-					Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+					Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 					np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)	
 					ImScale  = Data[1][1][idx]/SoS
 			else:		
@@ -556,7 +560,7 @@ def LD(Ig):
 									SoS1[2] = SoS
 								elif parLdmrks == '123':
 									SoS1[3] = SoS
-								Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+								Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 								np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 #							print 'SoS',SoS
 							ImScale = float(Data[1][NLdmrk-k][x])/SoS
@@ -598,7 +602,7 @@ def LD(Ig):
 								SoS1[2] = SoS
 							elif parLdmrks == '123':
 								SoS1[3] = SoS
-							Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+							Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 							np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 						ImScale = float(Data[1][NLdmrk-k][x])/SoS
 						MatPairs,SUM,cind,cor = FS(Ig,Xlm,Ylm,ImScale,Data[2][NLdmrk-k][x],RotAng,DeLms,k,x)
@@ -632,7 +636,7 @@ def WD(Im,Xlm,Ylm,x,k):
 			if parLdmrks == '0':
 				WpAngs0 = WpAngsCal
 				WpSideRat0 = WpSideRatCal
-				Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+				Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 				np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 				AngDiff = abs(Data[3][0] - WpAngsCal)
 				SideDiff = abs(Data[4][0] - WpSideRatCal) 
@@ -654,7 +658,7 @@ def WD(Im,Xlm,Ylm,x,k):
 					WpAngs1[3] = WpAngsCal
 					WpSideRat1[3] = WpSideRatCal
 					idx = 3
-				Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+				Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 				np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 				AngDiff = abs(Data[3][1][idx] - WpAngsCal)
 				SideDiff = abs(Data[4][1][idx] - WpSideRatCal) 
@@ -675,7 +679,7 @@ def WD(Im,Xlm,Ylm,x,k):
 			elif parLdmrks == '123':
 				WpAngs1[:][3] = WpAngsCal
 				WpSideRat1[:][3] = WpSideRatCal
-			Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+			Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 			np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 		AngDiff = abs(Data[3][NLdmrk-k][x] - WpAngsCal)
 		SideDiff = abs(Data[4][NLdmrk-k][x] - WpSideRatCal)
@@ -687,7 +691,7 @@ def WD(Im,Xlm,Ylm,x,k):
 # End of WpDet Definition		
 
 def IP(Im,Yaw,AltRef,YawRef,cWpNo,gData,pLdmrks):
-	global NLdmrk,curWpNo,GenData,parLdmrks,RefPt0,RefPt1,AltRef0,YawRef0,Data
+	global NLdmrk,curWpNo,GenData,parLdmrks,RefPt0,RefPt1,Data
 	curWpNo = cWpNo
 	GenData = gData
 	parLdmrks = pLdmrks
@@ -720,16 +724,12 @@ def IP(Im,Yaw,AltRef,YawRef,cWpNo,gData,pLdmrks):
 	WayPt,WpAngsCal,WpSideRatCal = WD(Im,Xlm,Ylm,x,k)	
 
 	if  (GenData == True) and (parLdmrks == '0'):
-		AltRef0 = AltRef
-		YawRef0 = YawRef
 		RefPt0 = refptCal
-		Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+		Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 		np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 		refptDB = Data[5][0]
 
 	if (GenData == True) and (parLdmrks != '0'):
-		AltRef0 = AltRef
-		YawRef0 = YawRef
 		if parLdmrks == '012':
 			RefPt1[0] = refptCal
 			ind = 0
@@ -742,7 +742,7 @@ def IP(Im,Yaw,AltRef,YawRef,cWpNo,gData,pLdmrks):
 		elif parLdmrks == '123':
 			RefPt1[3] = refptCal
 			ind = 3
-		Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+		Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 		np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 		refptDB = Data[5][1][ind]
 	print 'refptCal = ',refptCal
@@ -754,7 +754,7 @@ def IP(Im,Yaw,AltRef,YawRef,cWpNo,gData,pLdmrks):
 
 	if GenData == True:
 		print 'SoS0 = ',SoS0
-		Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef0,YawRef0]
+		Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 		np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 		print 'LdmrkAngs = ',Data[0]
 		print 'SoS = ',Data[1]
@@ -762,6 +762,6 @@ def IP(Im,Yaw,AltRef,YawRef,cWpNo,gData,pLdmrks):
 		print 'WpSideRat = ',Data[4]
 		print 'RefPt = ',Data[5]
 		print 'Data Successfully written to Database'
-	IpCalDrift = [(0.48/400)*(AltRef)*(ImScale)*k for k in refptDiffXY]
+	IpCalDrift = [(0.48/400)*(Data[6])*(ImScale)*k for k in refptDiffXY]
 	print 'IpCalDrift = ',IpCalDrift
 	return IpCalDrift

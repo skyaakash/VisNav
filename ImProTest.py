@@ -16,9 +16,9 @@ WpSiRatTh = 0.1							# Threshold of Waypoint Side Ratio
 AltRef = 400
 YawRef = 207.71 
 
-GenData = True							# Genarate Data
+GenData = False							# Genarate Data
 curWpNo = 1
-parLdmrkNos = '0'	#012 013 023 123 	# Used to generate data with partial landmarks
+parLdmrkNos = '123'	#012 013 023 123 	# Used to generate data with partial landmarks
 Im = cv2.imread('Database/waypoint_'+str(curWpNo)+ '_'+parLdmrkNos+'.jpg')
 # End of Image processing Thresholds
 

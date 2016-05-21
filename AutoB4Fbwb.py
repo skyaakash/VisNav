@@ -21,7 +21,7 @@ q_TiOutFlag = Queue.Queue()
 
 # Classes for Parallel Processing
 class ImagCap:
-	def IC(self,TrialNo,ImCapEvent,DoneEvent,CapturingImEvent):
+	def IC(self,ser,TrialNo,ImCapEvent,DoneEvent,CapturingImEvent):
 		ex = 'auto' 		#'1e-8'
 		awb = 'auto' 		#'sun'
 		photo_width  = 800
@@ -32,9 +32,10 @@ class ImagCap:
 			if ImCapEvent.is_set():
 				while cnt < 3:
 					CapturingImEvent.set()
-					filename = '/home/pi/FlightTest/FlightData/Survey/TrialNo' + str(TrialNo) + '/Wp_' + str(WpNo) + '_' + str(cnt) + '_Image' + awb + '.jpg'
-					cmd = 'raspistill -o ' + filename + ' -t 1000 -ss ' + str(ex) + ' -awb ' + awb + ' -w ' + str(photo_width) + ' -h ' + str(photo_height)
-					pid = subprocess.call(cmd, shell=True)	
+					if ser != 0:
+						filename = '/home/pi/FlightTest/FlightData/Survey/TrialNo' + str(TrialNo) + '/Wp_' + str(WpNo) + '_' + str(cnt) + '_Image' + awb + '.jpg'
+						cmd = 'raspistill -o ' + filename + ' -t 1000 -ss ' + str(ex) + ' -awb ' + awb + ' -w ' + str(photo_width) + ' -h ' + str(photo_height)
+						pid = subprocess.call(cmd, shell=True)	
 					cnt = cnt + 1
 					if cnt == 3:
 						ImCapEvent.clear()			
@@ -45,71 +46,83 @@ class ImagCap:
 				time.sleep(0.1)					
 class TravelDurIC: 
 	def TDIC(self,ser,TVEC,MaintStart,AutoWps,AutoWpTh,WpNo,MainCounter,fn,fn1,TrialNo,TiOutFlag,TiOutTh,ImCapEvent,DoneEvent,CapturingImEvent):
+		if ser != 0:
+			ser.flushInput()
 		cnt = 10	
-		npPath = '/home/pi/FlightTest/FlightData/AUTO/TrialNo' + str(TrialNo) + '/'
 		DataAtWpHit = np.zeros(4)
 		CurWp = np.zeros(2)
 		count = 0	
-		ser.flushInput()
 		tStartFlag = 1
 		WindM = 0
 		WindD = 0
+		d2wp = 50
 		while not DoneEvent.is_set():
 			ti = time.time()
-			rcv = ser.inWaiting()
-			while rcv == 0:
+			if ser == 0:						# Simulation (No Serial Port)
+				Roll = 0
+				Pitch = 0
+				Yaw = 0
+				Asp = 20
+				CurTime = time.time()
+				Lat = 0
+				Lng = 0
+				Alt = 400
+				WindMag = 1
+				WindDir = 0
+				d2wp = d2wp - Asp*0.1
+				time.sleep(0.1)
+			else:
 				rcv = ser.inWaiting()
-				DelT = time.time() - ti
-				if DelT > TiOutTh and tStartFlag == 0:
-					TiOutFlag = 1
-					break
-			if TiOutFlag == 1:
-				break					
-			if tStartFlag == 1:	
-				MaintStart = time.time()	
-				tStartFlag = 0
-				fn.write('########## AUTO MODE ##########' + '\n')
-			SensedRoll = ser.readline()
-			SensedPitch = ser.readline()
-			SensedYaw = ser.readline()
-			SensedAsp = ser.readline()
-			SensedCurTime = ser.readline()
-			SensedLat = ser.readline()
-			SensedLng = ser.readline()
-			SensedAlt = ser.readline()
-			SensedWm = ser.readline()
-			SensedWd = ser.readline()
+				while rcv == 0:
+					rcv = ser.inWaiting()
+					DelT = time.time() - ti
+					if DelT > TiOutTh and tStartFlag == 0:
+						TiOutFlag = 1
+						break
+				if TiOutFlag == 1:
+					break					
+				if tStartFlag == 1:	
+					MaintStart = time.time()	
+					tStartFlag = 0
+					fn.write('########## AUTO MODE ##########' + '\n')
+				SensedRoll = ser.readline()
+				SensedPitch = ser.readline()
+				SensedYaw = ser.readline()
+				SensedAsp = ser.readline()
+				SensedCurTime = ser.readline()
+				SensedLat = ser.readline()
+				SensedLng = ser.readline()
+				SensedAlt = ser.readline()
+				SensedWm = ser.readline()
+				SensedWd = ser.readline()
 
-			Roll = int(SensedRoll)
-			Pitch = int(SensedPitch)
-			Yaw = int(SensedYaw)
-			Asp = float(SensedAsp)
-			CurTime = long(SensedCurTime)
-			Lat = float(SensedLat)
-			Lng = float(SensedLng)
-			Alt = float(SensedAlt)
-			WindMag = float(SensedWm)
-			WindDir = float(SensedWd)
-
-			CurWp = AutoWps[WpNo]
-			LatDiff = abs(CurWp[0] - Lat) 
-			LngDiff = abs(CurWp[1] - Lng)
-			LLD = math.sqrt(LatDiff*LatDiff + LngDiff*LngDiff)
-			arc = BasicFns.DistanceOnUnitSphere(CurWp[0]/1e7,CurWp[1]/1e7,Lat/1e7,Lng/1e7)
-			d2wp = arc*6373000
+				Roll = int(SensedRoll)
+				Pitch = int(SensedPitch)
+				Yaw = int(SensedYaw)
+				Asp = float(SensedAsp)
+				CurTime = long(SensedCurTime)
+				Lat = float(SensedLat)
+				Lng = float(SensedLng)
+				Alt = float(SensedAlt)
+				WindMag = float(SensedWm)
+				WindDir = float(SensedWd)
+			
+				CurWp = AutoWps[WpNo]
+				LatDiff = abs(CurWp[0] - Lat) 
+				LngDiff = abs(CurWp[1] - Lng)
+				LLD = math.sqrt(LatDiff*LatDiff + LngDiff*LngDiff)
+				arc = BasicFns.DistanceOnUnitSphere(CurWp[0]/1e7,CurWp[1]/1e7,Lat/1e7,Lng/1e7)
+				d2wp = arc*6373000
 
 			if MainCounter == 0:
-				LlDistDif = [[LLD,d2wp]]		
 				GPSSTAT = [[CurTime,Lat,Lng,Alt]]
 				EUANGS = [[Roll,Pitch,Yaw]]
 				ASP = [Asp]
 			else:
-				LlDistDif = np.append(LlDistDif,[[LLD,d2wp]],axis=0)
 				GPSSTAT = np.append(GPSSTAT,[[CurTime,Lat,Lng,Alt]],axis=0)
 				EUANGS = np.append(EUANGS,[[Roll,Pitch,Yaw]],axis=0)
 				ASP = np.append(ASP,[Asp],axis=0)
 			if MainCounter % 10 == 0:
-				print 'LLD =',LLD
 				print 'd2wp =',d2wp 
 				print 'Asp =', Asp
 
@@ -127,7 +140,8 @@ class TravelDurIC:
 				elif WpNo == 2:
 					print '3rd AUTO Wp'
 					fn.write('\n 3rd AUTO WP \n')
-					ser.write(chr(0))
+					if ser != 0:
+						ser.write(chr(0))
 				WpNo = WpNo + 1				
 								
 			MainCounter = MainCounter + 1
@@ -159,7 +173,7 @@ def AutoB4Fbwb(ser,TVEC,MaintStart,AutoWps,AutoWpTh,WpNo,MainCounter,fn,fn1,Tria
 	a_CapturingImEvent = threading.Event()
 	I = ImagCap()
 	T = TravelDurIC()
-	It = threading.Thread(target=I.IC,args=(TrialNo,a_ImCapEvent,a_DoneEvent,a_CapturingImEvent))
+	It = threading.Thread(target=I.IC,args=(ser,TrialNo,a_ImCapEvent,a_DoneEvent,a_CapturingImEvent))
 	Tt = threading.Thread(target=T.TDIC,args=(ser,TVEC,MaintStart,AutoWps,AutoWpTh,WpNo,MainCounter,fn,fn1,TrialNo,TiOutFlag,TiOutTh,a_ImCapEvent,a_DoneEvent,a_CapturingImEvent))
 	It.start()
 	Tt.start()
@@ -174,9 +188,15 @@ def AutoB4Fbwb(ser,TVEC,MaintStart,AutoWps,AutoWpTh,WpNo,MainCounter,fn,fn1,Tria
 	WindD = q_WindD.get()
 	MainCounter = q_MainCounter.get()
 	MaintStart = q_MaintStart.get()
-	TiOutFlag = q_TiOutFlag.get()	
-	filename = '/home/pi/FlightTest/FlightData/DataFiles/TrialNo' + str(TrialNo) + '/MainDataFile.txt'
-	shutil.copy2('/home/pi/FlightTest/FlightData/MainDataFile.txt', filename)
-	filename = '/home/pi/FlightTest/FlightData/DataFiles/TrialNo' + str(TrialNo) + '/OtherDataFile.txt'
-	shutil.copy2('/home/pi/FlightTest/FlightData/OtherDataFile.txt', filename)						
+	TiOutFlag = q_TiOutFlag.get()
+	if ser == 0:
+		filename = 'FlightData/DataFiles/TrialNo' + str(TrialNo) + '/MainDataFile.txt'
+		shutil.copy2('FlightData/MainDataFile.txt', filename)
+		filename = 'FlightData/DataFiles/TrialNo' + str(TrialNo) + '/OtherDataFile.txt'
+		shutil.copy2('FlightData/OtherDataFile.txt', filename)	
+	else:	
+		filename = '/home/pi/FlightTest/FlightData/DataFiles/TrialNo' + str(TrialNo) + '/MainDataFile.txt'
+		shutil.copy2('/home/pi/FlightTest/FlightData/MainDataFile.txt', filename)
+		filename = '/home/pi/FlightTest/FlightData/DataFiles/TrialNo' + str(TrialNo) + '/OtherDataFile.txt'
+		shutil.copy2('/home/pi/FlightTest/FlightData/OtherDataFile.txt', filename)						
 	return TVEC,GPSSTAT,EUANGS,ASP,WindM,WindD,MainCounter,MaintStart,TiOutFlag
