@@ -67,7 +67,7 @@ class TravelDurIC:
 				Lat = 0
 				Lng = 0
 				Alt = 400
-				WindMag = 1
+				WindMag = 0
 				WindDir = 0
 				d2wp = d2wp - Asp*0.1
 				time.sleep(0.1)

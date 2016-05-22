@@ -104,7 +104,7 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 			if ser == 0:		# SIMULATION
 				Roll = 0
 				Pitch = 0
-				Yaw = 0
+				Yaw = ReqYaw
 				Asp = 20
 				CurTime = time.time()
 				Lat = 0
@@ -112,19 +112,6 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 				Alt = 400
 				WindMag = 1
 				WindDir = 0
-
-#				MainCounter = MainCounter + 1
-#				DelT = time.time() - ti	
-#				ti = time.time()
-#				POS,VEL,CVel,CAng = Move(POS,EUANGS,VEL,Asp,WindM,WindD,DelT)
-#				t = time.time() - MaintStart
-#				TVEC = np.append(TVEC,[t])								
-#				EUANGS = np.append(EUANGS,[[Roll,Pitch,Yaw]],axis=0)
-#				GPSSTAT = np.append(GPSSTAT,[[CurTime,Lat,Lng,Alt]],axis=0)
-#				pos_x = POS[len(POS)-1,0]
-#				pos_y = POS[len(POS)-1,1]
-#				pos_z = POS[len(POS)-1,2]
-#				tDiff = time.time() - tStart
 				time.sleep(0.1)
 				if tDiff > TimeUpd:
 					break

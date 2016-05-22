@@ -17,8 +17,8 @@ AltRef = 400
 YawRef = 207.71 
 
 GenData = False							# Genarate Data
-curWpNo = 1
-parLdmrkNos = '123'	#012 013 023 123 	# Used to generate data with partial landmarks
+curWpNo = 3
+parLdmrkNos = 'test'	#012 013 023 123 	# Used to generate data with partial landmarks
 Im = cv2.imread('Database/waypoint_'+str(curWpNo)+ '_'+parLdmrkNos+'.jpg')
 # End of Image processing Thresholds
 
