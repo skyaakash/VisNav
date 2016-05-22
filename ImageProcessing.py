@@ -703,7 +703,6 @@ def IP(Im,Yaw,AltRef,YawRef,cWpNo,gData,pLdmrks):
 	Ig = cv2.cvtColor(Im, cv2.COLOR_RGB2GRAY)	
 	
 	Ib,cor,Xlm,Ylm,CenCal,CanLdmrkCen,MatPairs,SUM,ImScale,SoS,x,k = LD(Ig)
-	print '########################x =',x
 	if x == -1:		# This condition is active when all landmarks in DB are detected.
 		refptDB = Data[5][0]
 	else:			# This condition is active when fewer landmarks are detected.

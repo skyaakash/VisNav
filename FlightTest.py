@@ -41,14 +41,8 @@ q_ti = Queue.Queue()
 q_MainCounter = Queue.Queue()
 q_POSatVisWp = Queue.Queue()
 q_CAng = Queue.Queue()
-q_TiOutFlag = Queue.Queue()
+q_TimeOut = Queue.Queue()
 q_ImProFail = Queue.Queue()
-
-AutoWps = [[-309353065,1365454102],[-309298649,1365464783],[-309315224,1365422668]]#Wo Auto Wps 28/4/15:0952 Wps 2,4 and 6 of WoomeraWps1
-VisualWps = [[-344249458,1385246124],[-344184456,1385176544],[-344140892,1385357971]]#[[-344249458,1385246124],[-344249458,1385286124]]
-VisualWpsSim = [[0,50],[50,50],[50,0]]
-#VisualWps = [[-344249458,1385246124],[-344222749,1385287571]]#[[-344249458,1385246124],[-344222832,1385262909]#[[-344249458,1385246124],[-344184456,1385176544],[-344140892,1385357971]]  
-l_VisWps = len(VisualWps)
 
 # Classes for Parallel Processing
 class ImagProc:
@@ -71,7 +65,7 @@ class ImagProc:
 					cmd = 'raspistill -o ' + filename + ' -t 1000 -ss ' + str(ex) + ' -awb ' + awb + ' -w ' + str(photo_width) + ' -h ' + str(photo_height)
 					pid = subprocess.call(cmd, shell=True)
 				else:
-					filename = 'Database/waypoint_'+str(WpNo)+ '_test.jpg'
+					filename = 'FlightData/Simulation/waypoint_'+str(WpNo)+ '_test.jpg'
 				Im = cv2.imread(filename)
 #				cv2.imshow('Image',Im)
 #				cv2.waitKey(2000)
@@ -82,7 +76,7 @@ class ImagProc:
 					cmd = 'raspistill -o '+ filename + ' -t 1000 -ss ' + str(ex) + ' -awb ' + awb + ' -w ' + str(photo_width) + ' -h ' + str(photo_height)
 					pid = subprocess.call(cmd, shell=True)
 				else:
-					filename = 'Database/waypoint_'+str(WpNo)+ '_test.jpg'
+					filename = 'FlightData/Simulation/waypoint_'+str(WpNo)+ '_test.jpg'
 				Im = cv2.imread(filename)
 			elif WpNo == 3:
 				if useRPi == True:
@@ -91,7 +85,7 @@ class ImagProc:
 					cmd = 'raspistill -o ' + filename + ' -t 1000 -ss ' + str(ex) + ' -awb ' + awb + ' -w ' + str(photo_width) + ' -h ' + str(photo_height)
 					pid = subprocess.call(cmd, shell=True)
 				else:
-					filename = 'Database/waypoint_'+str(WpNo)+ '_test.jpg'
+					filename = 'FlightData/Simulation/waypoint_'+str(WpNo)+ '_test.jpg'
 				Im = cv2.imread(filename)
 			fn.write('########## JUST AFTER IMAGE CAPTURE ##########' + '\n')		
 			ImCapEvent.set()					
@@ -108,27 +102,25 @@ class ImagProc:
 					break
 				except:
 					print 'Error in Image Processing'
-					ImProFail = 1
+					ImProFail = True
 					impro_event.set()
 					break	
-			print 'Broken 1'
 			q_IpCalDrift.put(IpCalDrift)
 			q_ImProFail.put(ImProFail)
 			stop_event.set()
-			print 'Broken 2'
 
 class TravelDurIP: 
 	def TDIP(self,ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,CAng,WpCounter,ti,
-			HeadErr,fn,fn1,ReqYaw,RollCd,WindM,WindD,ParThCounter,TiOutFlag,TiOutTh,X2,Y2,stop_event,ImCapEvent,tiout_event,impro_event):								
+			HeadErr,fn,fn1,ReqYaw,RollCd,WindM,WindD,ParThCounter,TimeOut,TiOutTh,l_VisWps,X2,Y2,stop_event,ImCapEvent,tiout_event,impro_event):								
 		tStart = time.time()
 		YawErrPrev = 0		
 		POSatVisWp = [0,0,0]
 		while not stop_event.is_set():
 			if impro_event.is_set():
-				TiOutFlag = 1
-			TVEC,GPSSTAT,POS,EUANGS,VEL,CAng,MainCounter,ti,tStart,YawErrPrev,ParThCounter,TiOutFlag = NavFns.SerialOpsMoveDurImPro(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,
-				MaintStart,MainCounter,CAng,ti,HeadErr,fn,ReqYaw,tStart,WindM,WindD,YawErrPrev,RollCd,X2,Y2,ParThCounter,TiOutFlag,TiOutTh)
-			if TiOutFlag == 1:
+				TimeOut = True
+			TVEC,GPSSTAT,POS,EUANGS,VEL,CAng,MainCounter,ti,tStart,YawErrPrev,ParThCounter,TimeOut = NavFns.SerialOpsMoveDurImPro(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,
+				MaintStart,MainCounter,CAng,ti,HeadErr,fn,ReqYaw,tStart,WindM,WindD,YawErrPrev,RollCd,X2,Y2,ParThCounter,TimeOut,TiOutTh)
+			if TimeOut == True:
 				tiout_event.set()
 				break
 			if ImCapEvent.is_set():
@@ -145,7 +137,6 @@ class TravelDurIP:
 				fn1.write(' '.join(map(str,EUANGSatVisWp)) + '\n\n')	
 				# End of save Visual Wp Data
 				ImCapEvent.clear()	
-		print 'broken 3'		
 		q_POSatVisWp.put(POSatVisWp)
 		q_POS.put(POS)
 		q_EUANGS.put(EUANGS)
@@ -154,14 +145,14 @@ class TravelDurIP:
 		q_ti.put(ti)
 		q_MainCounter.put(MainCounter)
 		q_CAng.put(CAng) 
-		q_TiOutFlag.put(TiOutFlag)
-		print 'broken 4'
+		q_TimeOut.put(TimeOut)
 # End of Classes for Parallel Processing			
 
 ###########################################################################################################################################################################
 ########################################################################## MAIN PROGRAM STARTS HERE #######################################################################
 ###########################################################################################################################################################################	
-def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
+def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,VisualWps):
+	l_VisWps = len(VisualWps)
 	TrialNo  = 1
 	while TrialNo <= totTrials:
 		print 'TrialNo = ',TrialNo
@@ -190,8 +181,8 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 		AutoWpNo = 0
 		WpNo = 1
 		InitFlag = 1
-		TiOutFlag = 0
-		ImProFail = 0
+		TimeOut = False
+		ImProFail = False
 		t = 0
 		AutoWpTh = AutoWpTh - 10
 		TimeUpd = np.zeros(len(VisualWps)+1,dtype = 'float')
@@ -200,25 +191,27 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 		Vb = np.zeros(3)
 		IpCalDrift = np.zeros(2)
 	
-
 		# Determine the wind in AUTO or CIRCLE mode before entering FBWB mode
-		TVEC,GPSSTAT,EUANGS,ASP,WindM,WindD,MainCounter,MaintStart,TiOutFlag = AutoB4Fbwb.AutoB4Fbwb(ser,TVEC,MaintStart,AutoWps,AutoWpTh,AutoWpNo,MainCounter,fn,fn1,TrialNo,TiOutFlag,TiOutTh)
-		if TiOutFlag == 0:
+		TVEC,GPSSTAT,EUANGS,ASP,WindM,WindD,MainCounter,MaintStart,TimeOut = AutoB4Fbwb.AutoB4Fbwb(ser,TVEC,MaintStart,AutoWps,AutoWpTh,AutoWpNo,MainCounter,fn,fn1,TrialNo,TimeOut,TiOutTh)
+		if TimeOut == False:
 			#GPSSTAT = [[0,0,0,0]]
 			#EUANGS = [[0,0,0]]
 			#ASP = [10]
 			#WindM = 10
 			#WindD = 225	
 
-			print 'WindM = ', WindM
-			print 'WindD = ', WindD
+			print 'Wind magnitude calculated after auto mode: WindM = ', WindM
+			print 'Wind direction calculated after auto mode: WindD = ', WindD
 			# End of wind calculation
 			ti = time.time()
 			while 1:
+				print '###########################################################################'
+				print '###########################################################################'
 				if ser == 0:								# SIMULATION
 					header = "DATA"
 					ti = time.time()
-					WpC = np.append([[0,0]],VisualWpsSim,axis = 0)
+
+					WpC = np.append([[0,0]],VisualWps,axis = 0)
 					x = raw_input('Press ENTER to continue.')
 					if not x:
 						ti = time.time()
@@ -229,9 +222,9 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 						rcv = ser.inWaiting()
 						DelT = time.time() - ti
 						if DelT > 0:
-							TiOutFlag = 1
+							TimeOut = True
 							break
-					if TiOutFlag == 1:
+					if TimeOut == True:
 						break						
 					rcv0 = float(rcv)
 					print 'rcv0 b4 while =',rcv0
@@ -308,9 +301,17 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 					if YorN == 'y':
 						fn.write('########## FBWB MODE ##########' + '\n')
 						break
-			if TiOutFlag == 0:
+			if TimeOut == False:
 				if ser == 0:		
 					while WpCounter > 1:
+						if WpCounter > 2:
+							print '###########################################################################'
+							print '################# Navigating towards Waypoint', WpNo,'##########################'
+							print '###########################################################################'
+						else:
+							print '###########################################################################'
+							print '###################### Navigating back to Origin ##########################'
+							print '###########################################################################'
 						# Navigation in straight line.
 						RollCd = 0
 						fn.write('########## FBWB MODE B4 MOVE IN STRAIGHT LINE ##########' + '\n')
@@ -359,8 +360,8 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 						Asp = 0
 						alldata = [MainCounter,t,pos_x,pos_y,pos_z,Roll,Pitch,Yaw,Lat,Lng,Alt,Asp]
 						fn.write(' '.join(map(str,alldata)) + '\n')	
-						TVEC,GPSSTAT,POS,EUANGS,VEL,MainCounter,CAng,ti,ReqYaw,RollCd,RollConst,TiOutFlag = NavFns.SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,i,ti,HeadErr,fn,fn1,TimeUpd[i],ReqYaw,RollCd,RollConst,InitFlag,WindM,WindD,X2,Y2,TiOutFlag,TiOutTh)
-						if TiOutFlag == 1:
+						TVEC,GPSSTAT,POS,EUANGS,VEL,MainCounter,CAng,ti,ReqYaw,RollCd,RollConst,TimeOut = NavFns.SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,i,ti,HeadErr,fn,fn1,TimeUpd[i],ReqYaw,RollCd,RollConst,InitFlag,WindM,WindD,X2,Y2,TimeOut,TiOutTh)
+						if TimeOut == True:
 							break
 						RollConst = int(RollConst)
 						print 'RollConst = ',RollConst
@@ -385,7 +386,7 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 							It = threading.Thread(target=I.IP,args=(useRPi,Yaw,WpNo,IpCalDrift,ImProFail,awb,ex,photo_width,
 									photo_height,fn,a_stop_event,a_ImCapEvent,a_tiout_event,a_impro_event))
 							Tt = threading.Thread(target=T.TDIP,args=(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,CAng,WpCounter,ti,HeadErr,fn,fn1,ReqYaw,
-									RollCd,WindM,WindD,ParThCounter,TiOutFlag,TiOutTh,X2,Y2,a_stop_event,a_ImCapEvent,a_tiout_event,a_impro_event))
+									RollCd,WindM,WindD,ParThCounter,TimeOut,TiOutTh,l_VisWps,X2,Y2,a_stop_event,a_ImCapEvent,a_tiout_event,a_impro_event))
 							It.start()
 							Tt.start()
 							It.join()
@@ -396,33 +397,28 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 							ImProFail = q_ImProFail.get()
 							print 'ImProFail =',ImProFail
 							if ImProFail == 1:
-								TiOutFlag = 1
+								TimeOut = True
 							POS = q_POS.get()
 							EUANGS = q_EUANGS.get()
 							VEL = q_VEL.get()
 							GPSSTAT = q_GPSSTAT.get()
 							ti = q_ti.get()
-							print 'ti =',ti
 							MainCounter = q_MainCounter.get()
 							print 'MainCounter =',MainCounter
 							POSatVisWp = q_POSatVisWp.get()
 							print 'POSatVisWp =',POSatVisWp
 							CAng = q_CAng.get()
 							print 'CAng =',CAng
-							TiOutFlag = q_TiOutFlag.get()
-							print 'TiOutFlag =',TiOutFlag
-							if ImProFail == 1:
-								TiOutFlag = 1					
-							if TiOutFlag == 1:
-								print 'Time Out Inside Thread'
+							TimeOut = q_TimeOut.get()
+							if ImProFail == True:
+								TimeOut = True					
+							if TimeOut == True:
+								print 'Time Out Inside one of the Threads'
 								break
 	
 							DispDurImPro = [(POS[len(POS)-1,0] - POSatVisWp[0]), (POS[len(POS)-1,1] - POSatVisWp[1])]
 							fn1.write('#### Displacement During Image Processing ####' + '\n')	
 							fn1.write(' '.join(map(str,DispDurImPro)) + '\n\n')
-	
-							print 'WpNo = ',WpNo
-							print 'IpCalDrift = ',IpCalDrift
 	
 							WpNo = WpNo + 1
 							fn1.write('#### Drift Calculated by Image Processing (IpCalDrift) ####' + '\n')	
@@ -449,7 +445,6 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 		
 							fn.write('########## Just after image processing update ##########' + '\n')
 						WpCounter = WpCounter - 1		
-						print 'WpCounter =',WpCounter
 						InitFlag = 0
 
 				else:		# REAL Experiment				
@@ -506,8 +501,8 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 						RollCd = 0
 						fn.write('########## FBWB MODE B4 MOVE IN STRAIGHT LINE ##########' + '\n')
 						i = len(TimeUpd)-WpCounter + 1
-						TVEC,GPSSTAT,POS,EUANGS,VEL,MainCounter,CAng,ti,ReqYaw,RollCd,RollConst,TiOutFlag = NavFns.SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,i,ti,HeadErr,fn,fn1,TimeUpd[i],ReqYaw,RollCd,RollConst,InitFlag,WindM,WindD,X2,Y2,TiOutFlag,TiOutTh)
-						if TiOutFlag == 1:
+						TVEC,GPSSTAT,POS,EUANGS,VEL,MainCounter,CAng,ti,ReqYaw,RollCd,RollConst,TimeOut = NavFns.SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,i,ti,HeadErr,fn,fn1,TimeUpd[i],ReqYaw,RollCd,RollConst,InitFlag,WindM,WindD,X2,Y2,TimeOut,TiOutTh)
+						if TimeOut == True:
 							break
 						RollConst = int(RollConst)
 						print 'RollConst = ',RollConst
@@ -531,7 +526,7 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 							It = threading.Thread(target=I.IP,args=(useRPi,Yaw,WpNo,IpCalDrift,ImProFail,awb,ex,photo_width,
 									photo_height,fn,a_stop_event,a_ImCapEvent,a_tiout_event,a_impro_event))
 							Tt = threading.Thread(target=T.TDIP,args=(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,CAng,WpCounter,ti,HeadErr,fn,fn1,ReqYaw,
-									RollCd,WindM,WindD,ParThCounter,TiOutFlag,TiOutTh,X2,Y2,a_stop_event,a_ImCapEvent,a_tiout_event,a_impro_event))
+									RollCd,WindM,WindD,ParThCounter,TimeOut,TiOutTh,l_VisWps,X2,Y2,a_stop_event,a_ImCapEvent,a_tiout_event,a_impro_event))
 							It.start()
 							Tt.start()
 							It.join()
@@ -543,7 +538,7 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 							ImProFail = q_ImProFail.get()
 							print 'ImProFail =',ImProFail
 							if ImProFail == 1:
-								TiOutFlag = 1
+								TimeOut = True
 							POS = q_POS.get()
 							EUANGS = q_EUANGS.get()
 							VEL = q_VEL.get()
@@ -556,11 +551,11 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 							print 'POSatVisWp =',POSatVisWp
 							CAng = q_CAng.get()
 							print 'CAng =',CAng
-							TiOutFlag = q_TiOutFlag.get()
-							print 'TiOutFlag =',TiOutFlag
-							if ImProFail == 1:
-								TiOutFlag = 1					
-							if TiOutFlag == 1:
+							TimeOut = q_TimeOut.get()
+							print 'TimeOut =',TimeOut
+							if ImProFail == True:
+								TimeOut = True					
+							if TimeOut == True:
 								print 'Time Out Inside Thread'
 								break
 
@@ -568,7 +563,7 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 							fn1.write('#### Displacement During Image Processing ####' + '\n')	
 							fn1.write(' '.join(map(str,DispDurImPro)) + '\n\n')
 
-							print 'WpNo = ',WpNo
+							print 'Waypoint Number = ',WpNo
 							print 'IpCalDrift = ',IpCalDrift
 
 							WpNo = WpNo + 1
@@ -668,12 +663,12 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 										ReqYawUpd = ReqYawUpd - 36000
 								if TurnDir == 1:
 									if ((ReqYawUpd - Yaw) > 0 or (ReqYawUpd - Yaw) < -18000):
-										TVEC,GPSSTAT,POS,EUANGS,VEL,MainCounter,ti,RollCd,YawIncDec,Asp,TiOutFlag = NavFns.SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,ti,HeadErr,Yaw,ReqYaw,YawIncDec,RollCd,RollCdMax,RollConst,TurnDir,CdToTurn,WindM,WindD,TurnCounter,fn,TiOutFlag,TiOutTh)
+										TVEC,GPSSTAT,POS,EUANGS,VEL,MainCounter,ti,RollCd,YawIncDec,Asp,TimeOut = NavFns.SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,ti,HeadErr,Yaw,ReqYaw,YawIncDec,RollCd,RollCdMax,RollConst,TurnDir,CdToTurn,WindM,WindD,TurnCounter,fn,TimeOut,TiOutTh)
 								elif TurnDir == 0:
 									if ((ReqYawUpd - Yaw) < 0 or (ReqYawUpd - Yaw) > 18000):
-										TVEC,GPSSTAT,POS,EUANGS,VEL,MainCounter,ti,RollCd,YawIncDec,Asp,TiOutFlag = NavFns.SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,ti,HeadErr,Yaw,ReqYaw,YawIncDec,RollCd,RollCdMax,RollConst,TurnDir,CdToTurn,WindM,WindD,TurnCounter,fn,TiOutFlag,TiOutTh)
-								print 'TiOutFlag after Turn = ', TiOutFlag
-								if TiOutFlag == 1:
+										TVEC,GPSSTAT,POS,EUANGS,VEL,MainCounter,ti,RollCd,YawIncDec,Asp,TimeOut = NavFns.SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,ti,HeadErr,Yaw,ReqYaw,YawIncDec,RollCd,RollCdMax,RollConst,TurnDir,CdToTurn,WindM,WindD,TurnCounter,fn,TimeOut,TiOutTh)
+								print 'TimeOut after Turn = ', TimeOut
+								if TimeOut == True:
 									print 'broken first while loop after turn'
 									break		
 
@@ -705,7 +700,7 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 								print 'ReqYaw for TurnCounter',TurnCounter,'=',ReqYaw
 								# End of ReqYaw Calculations	
 							# End of Navigation during turn.
-							if TiOutFlag == 1:
+							if TimeOut == True:
 								print 'broken second while loop after turn'
 								break
 						# Calculation of TimeUpd for next section of travel.
@@ -733,9 +728,9 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 		
 		fn.close()
 		fn1.close()
+		print 'Final Position = ',POS[len(POS)-1]
 
 		if ser == 0:
-			print 'aakash'
 			filename = 'FlightData/DataFiles/TrialNo' + str(TrialNo) + '/MainDataFile.txt'
 			shutil.copy2('FlightData/MainDataFile.txt', filename)
 			filename = 'FlightData/DataFiles/TrialNo' + str(TrialNo) + '/OtherDataFile.txt'
@@ -757,6 +752,11 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh):
 			np.savetxt(filename,VEL)		
 			filename = npPath + 'TVEC.txt'
 			np.savetxt(filename,TVEC)	
-	
-		print 'Navigation: successfully saved data files'
+		if ImProFail == False and WpCounter == 1:
+			print 'Navigation has been successfully successfully accomplished. Data log files have been saved.'
+		else:
+			if ImProFail == True:
+				print 'IMAGE PROCESSING ERROR: Navigation has been aborted.'
+			else:
+				print 'NAVIGATION INCOMPLETE ERROR: Did not pass through all wps.'
 		TrialNo = TrialNo + 1

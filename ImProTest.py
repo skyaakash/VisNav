@@ -6,7 +6,7 @@ NLdmrk = [4]							# Number of candidate Landmarks to be detected
 ImageTh = 0.004 						# Used in LdmrkDet.LD: To prevent excessive whites in binary image
 BinaryTh = 110							# Initial binary threshold to  adaptively binarize an image
 BinThIncDec = 5							# Increase or decrease binary threshold from intitial value (BinaryTh) (used in Algorithm 1)
-BwAreaTh = [200,2000] 					# Lower and upper thresholds for BwArea
+BwAreaTh = [100,2000] 					# Lower and upper thresholds for BwArea
 LdmrkAngTh = 5							# Threshold of Second Stage Landmark Detection
 ImCropTh = [100,36]
 WpAngTh = 5								# Threshold of Waypoint Angles
@@ -18,7 +18,7 @@ YawRef = 207.71
 
 GenData = False							# Genarate Data
 curWpNo = 3
-parLdmrkNos = 'test'	#012 013 023 123 	# Used to generate data with partial landmarks
+parLdmrkNos = '123'	#012 013 023 123 	# Used to generate data with partial landmarks
 Im = cv2.imread('Database/waypoint_'+str(curWpNo)+ '_'+parLdmrkNos+'.jpg')
 # End of Image processing Thresholds
 

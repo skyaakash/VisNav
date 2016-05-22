@@ -87,7 +87,7 @@ def Move(POS,EUANGS,VEL,Asp,WindM,WindD,DelT):
 	return POS,VEL,CVel,CAng	
 # End of Definition Move.		
 	
-def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,i,ti,HeadErr,fn,fn1,TimeUpd,ReqYaw,RollCd,RollConst,InitFlag,WindM,WindD,X2,Y2,TiOutFlag,TiOutTh):
+def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,i,ti,HeadErr,fn,fn1,TimeUpd,ReqYaw,RollCd,RollConst,InitFlag,WindM,WindD,X2,Y2,TimeOut,TiOutTh):
 	print'.............................................................................................................................'
 	print 'Moving in St Ln'
 	r = 0
@@ -132,10 +132,10 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					inw_data = ser.inWaiting()
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
-						TiOutFlag = 1
+						TimeOut = True
 						print 'timeout'
 						break
-				if TiOutFlag == 1:
+				if TimeOut == True:
 					print 'timeout'
 					break		
 					
@@ -145,7 +145,7 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					hdr0 = int(hdr)
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
-						TiOutFlag = 1
+						TimeOut = True
 						print 'timeout'
 						break				
 			
@@ -214,10 +214,10 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					YorN = ser.inWaiting()
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
-						TiOutFlag = 1
+						TimeOut = True
 						print 'timeout'
 						break	
-				if TiOutFlag == 1:
+				if TimeOut == True:
 					print 'timeout'
 					break					
 				
@@ -225,7 +225,7 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					YorN = ser.read()
 				if YorN == 'y':
 					break	
-			if TiOutFlag == 1:
+			if TimeOut == True:
 				print 'timeout'
 				break													
 						
@@ -316,10 +316,10 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 #	np.savetxt('/home/pi/FlightTest/FlightData/POS.txt',POS)
 #	np.savetxt('/home/pi/FlightTest/FlightData/EUANGS.txt',EUANGS)
 #	np.savetxt('/home/pi/FlightTest/FlightData/VEL.txt',VEL)
-	return TVEC,GPSSTAT,POS,EUANGS,VEL,MainCounter,CAng,ti,ReqYaw,RollCd,RollConst,TiOutFlag
+	return TVEC,GPSSTAT,POS,EUANGS,VEL,MainCounter,CAng,ti,ReqYaw,RollCd,RollConst,TimeOut
 # End of Definition SerialOpsMove.	
 
-def SerialOpsMoveDurImPro(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,CAng,ti,HeadErr,fn,ReqYaw,tStart,WindM,WindD,YawErrPrev,RollCd,X2,Y2,ParThCounter,TiOutFlag,TiOutTh):
+def SerialOpsMoveDurImPro(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,CAng,ti,HeadErr,fn,ReqYaw,tStart,WindM,WindD,YawErrPrev,RollCd,X2,Y2,ParThCounter,TimeOut,TiOutTh):
 	if ParThCounter % 100 == 0:
 		print'.............................................................................................................................'
 		print 'Moving in St Ln during Image processing'
@@ -371,9 +371,9 @@ def SerialOpsMoveDurImPro(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,
 				inw_data = ser.inWaiting()
 				DelT = time.time() - ti
 				if DelT > TiOutTh:
-					TiOutFlag = 1
+					TimeOut = True
 					break
-			if TiOutFlag == 1:
+			if TimeOut == True:
 				break					
 						
 			hdr0 = 0	
@@ -382,7 +382,7 @@ def SerialOpsMoveDurImPro(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,
 				hdr0 = int(hdr)
 				DelT = time.time() - ti
 				if DelT > TiOutTh:
-					TiOutFlag = 1
+					TimeOut = True
 					print 'timeout'
 					break			
 			
@@ -447,17 +447,17 @@ def SerialOpsMoveDurImPro(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,
 				YorN = ser.inWaiting()
 				DelT = time.time() - ti
 				if DelT > TiOutTh:
-					TiOutFlag = 1
+					TimeOut = True
 					print 'timeout'
 					break	
-			if TiOutFlag == 1:
+			if TimeOut == True:
 				print 'timeout'
 				break						
 			while ((YorN != 'y') and (YorN != 'n')):
 				YorN = ser.read()
 			if YorN == 'y':
 				break	
-		if TiOutFlag == 0:	
+		if TimeOut == False:	
 			# This section of code is for cotrolling Yaw using Roll
 			YawErr = ReqYaw - Yaw
 			YawErrDiff = YawErr - YawErrPrev
@@ -490,10 +490,10 @@ def SerialOpsMoveDurImPro(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,
 				CurDist = math.sqrt(pow((X2 - X1),2) + pow((Y2 - Y1),2))
 				print 'CurDist from last waypoint =',CurDist
 				print 'CVel =',CVel				
-	return TVEC,GPSSTAT,POS,EUANGS,VEL,CAng,MainCounter,ti,tStart,YawErrPrev,ParThCounter,TiOutFlag
+	return TVEC,GPSSTAT,POS,EUANGS,VEL,CAng,MainCounter,ti,tStart,YawErrPrev,ParThCounter,TimeOut
 # End of Definition SerialOpsMoveDurImPro.	
 	
-def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,ti,HeadErr,Yaw,ReqYaw,YawIncDec,RollCd,RollCdMax,RollConst,TurnDir,CdToTurn,WindM,WindD,TurnCounter,fn,TiOutFlag,TiOutTh):
+def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,ti,HeadErr,Yaw,ReqYaw,YawIncDec,RollCd,RollCdMax,RollConst,TurnDir,CdToTurn,WindM,WindD,TurnCounter,fn,TimeOut,TiOutTh):
 	r = 0	
 	RollFlag = 0
 	k = 5
@@ -521,9 +521,9 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					inw_data = ser.inWaiting()		
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
-						TiOutFlag = 1
+						TimeOut = True
 						break
-				if TiOutFlag == 1:
+				if TimeOut == True:
 					break												
 				hdr0 = 0	
 				while hdr0 != 68:
@@ -531,7 +531,7 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					hdr0 = int(hdr)
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
-						TiOutFlag = 1
+						TimeOut = True
 						print 'timeout'
 						break					
 					
@@ -598,10 +598,10 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					YorN = ser.inWaiting()
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
-						TiOutFlag = 1
+						TimeOut = True
 						print 'timeout'
 						break	
-				if TiOutFlag == 1:
+				if TimeOut == True:
 					print 'timeout'
 					break							
 				while ((YorN != 'y') and (YorN != 'n')):
@@ -609,7 +609,7 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 				if YorN == 'y':
 					break			
 			
-			if TiOutFlag == 1:
+			if TimeOut == True:
 				break
 			
 			MainCounter = MainCounter + 1
@@ -691,9 +691,9 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					inw_data = ser.inWaiting()	
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
-						TiOutFlag = 1
+						TimeOut = True
 						break
-				if TiOutFlag == 1:
+				if TimeOut == True:
 					break													
 				hdr0 = 0	
 				while hdr0 != 68:
@@ -701,7 +701,7 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					hdr0 = int(hdr)
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
-						TiOutFlag = 1
+						TimeOut = True
 						print 'timeout'
 						break
 				
@@ -767,10 +767,10 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					YorN = ser.inWaiting()
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
-						TiOutFlag = 1
+						TimeOut = True
 						print 'timeout'
 						break	
-				if TiOutFlag == 1:
+				if TimeOut == True:
 					print 'timeout'
 					break							
 				while ((YorN != 'y') and (YorN != 'n')):
@@ -778,7 +778,7 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 				if YorN == 'y':
 					break			
 			
-			if TiOutFlag == 1:
+			if TimeOut == True:
 				break
 			MainCounter = MainCounter + 1						
 			DelT = time.time() - ti
@@ -846,7 +846,7 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 	print 'Pitch from Plane =',Pitch
 	print 'Yaw from Plane =',Yaw
 	print 'Airspeed from Plane =',Asp		
-	print 'TiOutFlag inside Turn Function = ', TiOutFlag
+	print 'TimeOut inside Turn Function = ', TimeOut
 	RollCd = RollConst
-	return TVEC,GPSSTAT,POS,EUANGS,VEL,MainCounter,ti,RollCd,YawIncDec,Asp,TiOutFlag
+	return TVEC,GPSSTAT,POS,EUANGS,VEL,MainCounter,ti,RollCd,YawIncDec,Asp,TimeOut
 # End of Definition SerialOpsTurn.		

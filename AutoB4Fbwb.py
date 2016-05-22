@@ -128,17 +128,19 @@ class TravelDurIC:
 
 			if d2wp < AutoWpTh:
 				ImCapEvent.set()
-				print '.....................................'
-				print 'Hey Aakash Uav Hit the WayPoint: Now it will save data for you. Cheers! Buddy.'
+				print '...................................'
 				if WpNo == 0:
-					print '1st AUTO Wp'
+					print 'Uav has reached the Auto-Waypoint',WpNo
+					print 'Now it will save data.'
 					fn.write('\n 1st AUTO WP \n')
 					tWp1Start = time.time()		
 				elif WpNo == 1:
-					print '2nd AUTO Wp'
+					print 'Uav has reached the Auto-Waypoint',WpNo
+					print 'Now it will save data.'
 					fn.write('\n 2nd AUTO WP \n')
 				elif WpNo == 2:
-					print '3rd AUTO Wp'
+					print 'Uav has reached the Auto-Waypoint',WpNo
+					print 'Now it will save data.'
 					fn.write('\n 3rd AUTO WP \n')
 					if ser != 0:
 						ser.write(chr(0))
