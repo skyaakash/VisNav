@@ -7,17 +7,17 @@ import math
 import shutil
 import BasicFns
 import threading
-import Queue
+import queue
 
-q_TVEC = Queue.Queue() 
-q_GPSSTAT = Queue.Queue()
-q_EUANGS = Queue.Queue()
-q_ASP = Queue.Queue()
-q_WindM = Queue.Queue()
-q_WindD = Queue.Queue()
-q_MainCounter = Queue.Queue()
-q_MaintStart = Queue.Queue()
-q_TiOutFlag = Queue.Queue()
+q_TVEC = queue.Queue() 
+q_GPSSTAT = queue.Queue()
+q_EUANGS = queue.Queue()
+q_ASP = queue.Queue()
+q_WindM = queue.Queue()
+q_WindD = queue.Queue()
+q_MainCounter = queue.Queue()
+q_MaintStart = queue.Queue()
+q_TiOutFlag = queue.Queue()
 
 # Classes for Parallel Processing
 class ImagCap:
@@ -100,7 +100,7 @@ class TravelDurIC:
 				Pitch = int(SensedPitch)
 				Yaw = int(SensedYaw)
 				Asp = float(SensedAsp)
-				CurTime = long(SensedCurTime)
+				CurTime = int(SensedCurTime)
 				Lat = float(SensedLat)
 				Lng = float(SensedLng)
 				Alt = float(SensedAlt)
@@ -123,24 +123,24 @@ class TravelDurIC:
 				EUANGS = np.append(EUANGS,[[Roll,Pitch,Yaw]],axis=0)
 				ASP = np.append(ASP,[Asp],axis=0)
 			if MainCounter % 10 == 0:
-				print 'd2wp =',d2wp 
-				print 'Asp =', Asp
+				print('d2wp =',d2wp) 
+				print('Asp =', Asp)
 
 			if d2wp < AutoWpTh:
 				ImCapEvent.set()
-				print '...................................'
+				print('...................................')
 				if WpNo == 0:
-					print 'Uav has reached the Auto-Waypoint',WpNo
-					print 'Now it will save data.'
+					print('Uav has reached the Auto-Waypoint',WpNo)
+					print('Now it will save data.')
 					fn.write('\n 1st AUTO WP \n')
 					tWp1Start = time.time()		
 				elif WpNo == 1:
-					print 'Uav has reached the Auto-Waypoint',WpNo
-					print 'Now it will save data.'
+					print('Uav has reached the Auto-Waypoint',WpNo)
+					print('Now it will save data.')
 					fn.write('\n 2nd AUTO WP \n')
 				elif WpNo == 2:
-					print 'Uav has reached the Auto-Waypoint',WpNo
-					print 'Now it will save data.'
+					print('Uav has reached the Auto-Waypoint',WpNo)
+					print('Now it will save data.')
 					fn.write('\n 3rd AUTO WP \n')
 					if ser != 0:
 						ser.write(chr(0))

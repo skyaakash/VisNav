@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import BasicFns
 from operator import sub
-from itertools import imap
+
 Data = 0
 curWpNo = 0
 parLdmrks = '0'
@@ -35,7 +35,7 @@ RefPt1 = 0
 AltRef = 0
 YawRef = 0
 def LoadData(curWpNo,GenData,parLdmrks):
-	print 'Loading Data'
+	print('Loading Data')
 	global Data,NLdmrk,ImCropTh,ImageTh,BinaryTh,BinThIncDec,BwAreaTh,LdmrkAngTh,WpAngTh,WpSiRatTh,LdmrkAngs0,LdmrkAngs1,\
 			SoS0,SoS1,SUM0,SUM1,WpAngs0,WpAngs1,WpSideRat0,WpSideRat1,RefPt0,RefPt1
 	Data = np.load('Database/Wp'+str(curWpNo)+'Data.npy')
@@ -251,7 +251,7 @@ def FS(Ig,Xlm,Ylm,ImScale,SUMdb,RotAng,DeLms,n,x):
 		for j in range(0,n):
 			cor[i,j] = BasicFns.corr(SUMdb[i,:],SUM[j,:])
 #	print '...............................', time.time() - st_ti_corr, "Time required for performing Correlation ...."
-	print 'cor =', cor
+	print('cor =', cor)
 
 	cmax = np.amax(cor,axis=0)
 	cind = np.argmax(cor,axis=0)
@@ -275,12 +275,12 @@ def FS(Ig,Xlm,Ylm,ImScale,SUMdb,RotAng,DeLms,n,x):
 			else:
 				MatPairs = np.append(MatPairs,[[i,cind[i]]],axis=0)
 			count = count + 1
-	print '....................................................', time.time() - st_time, "seconds for FeatSig.FS ...."		
+	print('....................................................', time.time() - st_time, "seconds for FeatSig.FS ....")		
 	return MatPairs,SUM,cind,cor
 # End of FeatureSignature Definition
 
 def LL(LdmrkCen,LdmrkAngsDb,k,x):
-	print 'LdmrkCen = ', LdmrkCen
+	print('LdmrkCen = ', LdmrkCen)
 	global LdmrkAngs0,LdmrkAngs1,Data
 	LdmrkCen = np.array(LdmrkCen)
 	LdmrkAngsDb = np.array(LdmrkAngsDb)
@@ -413,7 +413,7 @@ def LD(Ig):
 	if GenData == True:
 		cv2.imshow('Binary Image',Ib*255)
 		cv2.waitKey(500)	
-	print 'NumCanLdmrk=',NumCanLdmrk
+	print('NumCanLdmrk=',NumCanLdmrk)
 	for i in range(0,NumCanLdmrk):
 		c = cs[i]
 		m = cv2.moments(c)
@@ -452,12 +452,12 @@ def LD(Ig):
 				NonNegEls1 = MatPairs[(MatPairs >= 0)].size
 				if NonNegEls1 == NLdmrk*2:
 					DetFlag = True
-					print "Successful Detection of all", NLdmrk ,"Landmarks"
+					print("Successful Detection of all", NLdmrk ,"Landmarks")
 					BrFlag = True
 					break
 				
 		if DetFlag == False:
-			print "Can not match", NLdmrk, "Landmarks: Now will try to match", NLdmrk-1, "Landmarks"				
+			print("Can not match", NLdmrk, "Landmarks: Now will try to match", NLdmrk-1, "Landmarks")				
 			for k in range(NLdmrk-1,2,-1):
 				combs = set(itertools.combinations(nums,k))
 				LdmrkCen = np.zeros((k,2), dtype='float')
@@ -486,7 +486,7 @@ def LD(Ig):
 							MatPairs,SUM,cind,cor = FS(Ig,Xlm,Ylm,ImScale,Data[2][NLdmrk-k][x],RotAng,DeLms,k,x)
 							NonNegEls1 = MatPairs[(MatPairs >= 0)].size
 							if NonNegEls1 == k*2:
-								print "Successful Detection of", k ,"landmarks",BasicFns.WhichLdmrkDeted(NumCanLdmrk,NLdmrk,k,x), "from", NumCanLdmrk, "landamrks"
+								print("Successful Detection of", k ,"landmarks",BasicFns.WhichLdmrkDeted(NumCanLdmrk,NLdmrk,k,x), "from", NumCanLdmrk, "landamrks")
 								BrFlag = True
 								break
 					if BrFlag == True:
@@ -494,13 +494,13 @@ def LD(Ig):
 				if BrFlag == True:
 					break	
 				if k == 3:
-					print "Landmarks could not be matched. Not even THREE Landmarks were matched"
+					print("Landmarks could not be matched. Not even THREE Landmarks were matched")
 		
 	elif NumCanLdmrk == NLdmrk:
-		print "Candidate Landmarks (= desired):",NumCanLdmrk
+		print("Candidate Landmarks (= desired):",NumCanLdmrk)
 		LdmrkCen = CanLdmrkCen
 		CenCal,Xlm,Ylm,DeLms,RotAng = LL(LdmrkCen,Data[0][0],k,x) 	# Data[0] = Ldmrk_Angs
-		print 'Xlm,Ylm = ',Xlm,Ylm
+		print('Xlm,Ylm = ',Xlm,Ylm)
 		DeLms = np.array(DeLms)
 		NonNegEls = DeLms[(DeLms >= 0)].size
 		if NonNegEls == NLdmrk:
@@ -534,9 +534,9 @@ def LD(Ig):
 			NonNegEls1 = MatPairs[(MatPairs >= 0)].size
 			if NonNegEls1 == NLdmrk*2:
 				DetFlag = True
-				print "Successful Detection of all", NLdmrk, "Landmarks"
+				print("Successful Detection of all", NLdmrk, "Landmarks")
 		if DetFlag == False:
-			print "Can not match", NLdmrk, "Landmarks: Now will try to match", NLdmrk-1, "Landmarks"
+			print("Can not match", NLdmrk, "Landmarks: Now will try to match", NLdmrk-1, "Landmarks")
 			nums = np.arange(NumCanLdmrk)
 			for k in range(NLdmrk-1,2,-1):
 				combs = set(itertools.combinations(nums,k))
@@ -567,7 +567,7 @@ def LD(Ig):
 							MatPairs,SUM,cind,cor = FS(Ig,Xlm,Ylm,ImScale,Data[2][NLdmrk-k][x],RotAng,DeLms,k,x)
 							NonNegEls1 = MatPairs[(MatPairs >= 0)].size
 							if NonNegEls1 == k*2:
-								print "Successful Detection of", k ,"landmarks",BasicFns.WhichLdmrkDeted(NumCanLdmrk,NLdmrk,k,x), "from", NumCanLdmrk, "landamrks"
+								print("Successful Detection of", k ,"landmarks",BasicFns.WhichLdmrkDeted(NumCanLdmrk,NLdmrk,k,x), "from", NumCanLdmrk, "landamrks")
 								BrFlag = True
 								break
 					if BrFlag == True:
@@ -575,10 +575,10 @@ def LD(Ig):
 				if BrFlag == True:
 					break	
 				if k == 3:
-					print "Landmarks could not be matched. Not even THREE Landmarks were matched"
+					print("Landmarks could not be matched. Not even THREE Landmarks were matched")
 
 	else:
-		print "Candidate Landmarks (< desired):",NumCanLdmrk
+		print("Candidate Landmarks (< desired):",NumCanLdmrk)
 		nums = np.arange(NumCanLdmrk)
 		for k in range(NumCanLdmrk,2,-1):
 			combs = set(itertools.combinations(nums,k))
@@ -608,7 +608,7 @@ def LD(Ig):
 						MatPairs,SUM,cind,cor = FS(Ig,Xlm,Ylm,ImScale,Data[2][NLdmrk-k][x],RotAng,DeLms,k,x)
 						NonNegEls1 = MatPairs[(MatPairs >= 0)].size
 						if NonNegEls1 == k*2:
-							print "Successful Detection of", k ,"landmarks",BasicFns.WhichLdmrkDeted(NumCanLdmrk,NLdmrk,k,x), "from", NumCanLdmrk, "landamrks"
+							print("Successful Detection of", k ,"landmarks",BasicFns.WhichLdmrkDeted(NumCanLdmrk,NLdmrk,k,x), "from", NumCanLdmrk, "landamrks")
 							BrFlag = True
 							break
 				if BrFlag == True:
@@ -616,7 +616,7 @@ def LD(Ig):
 			if BrFlag == True:
 				break	
 			if k == 3:
-				print "Landmarks could not be matched. Not even THREE Landmarks were matched"	
+				print("Landmarks could not be matched. Not even THREE Landmarks were matched")	
 	if (NLdmrk != NumCanLdmrk) or ((NLdmrk == NumCanLdmrk) and (len(PosLdmrks) < NLdmrk)):
 		MatPairs[:,0] = PosLdmrks	
 		MatPairs[:,1] = DeLms
@@ -643,7 +643,7 @@ def WD(Im,Xlm,Ylm,x,k):
 			else:
 				if parLdmrks == '012':
 					WpAngs1[0] = WpAngsCal
-					print 'WpAngs1 = ',WpAngs1
+					print('WpAngs1 = ',WpAngs1)
 					WpSideRat1[0] = WpSideRatCal
 					idx = 0
 				elif parLdmrks == '013':
@@ -707,11 +707,11 @@ def IP(Im,Yaw,AltRef,YawRef,cWpNo,gData,pLdmrks):
 		refptDB = Data[5][0]
 	else:			# This condition is active when fewer landmarks are detected.
 		refptDB = Data[5][NLdmrk-k][x]	
-	print 'refptDB = ',refptDB
+	print('refptDB = ',refptDB)
 
 	MatPairs = MatPairs[np.lexsort((MatPairs[:,1], ))]	
 	LdmrkSeq = MatPairs[:,0]
-	print 'LdmrkSeq =', LdmrkSeq
+	print('LdmrkSeq =', LdmrkSeq)
 	for i in range(0,len(Xlm)):
 		Xlm[i] = CanLdmrkCen[LdmrkSeq[i]][0]
 		Ylm[i] = CanLdmrkCen[LdmrkSeq[i]][1]
@@ -744,23 +744,23 @@ def IP(Im,Yaw,AltRef,YawRef,cWpNo,gData,pLdmrks):
 		Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 		np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
 		refptDB = Data[5][1][ind]
-	print 'refptCal = ',refptCal
+	print('refptCal = ',refptCal)
 	rpcalToXY = BasicFns.ToXyPlane(refptCal,ImgCen,Yaw)
 	
 	rpdbToXY = BasicFns.ToXyPlane(refptDB,ImgCen,Data[7])
-	refptDiffXY = list(imap(sub,rpdbToXY,rpcalToXY)) 	
-	print 'refptDiffXY = ',refptDiffXY
+	refptDiffXY = list(map(sub,rpdbToXY,rpcalToXY)) 	
+	print('refptDiffXY = ',refptDiffXY)
 
 	if GenData == True:
-		print 'SoS0 = ',SoS0
+		print('SoS0 = ',SoS0)
 		Data = [[LdmrkAngs0,LdmrkAngs1],[SoS0,SoS1],[SUM0,SUM1],[WpAngs0,WpAngs1],[WpSideRat0,WpSideRat1],[RefPt0,RefPt1],AltRef,YawRef]
 		np.save('Database/Wp'+str(curWpNo)+'Data.npy',Data)
-		print 'LdmrkAngs = ',Data[0]
-		print 'SoS = ',Data[1]
-		print 'WpAngs = ',Data[3]
-		print 'WpSideRat = ',Data[4]
-		print 'RefPt = ',Data[5]
-		print 'Data Successfully written to Database'
+		print('LdmrkAngs = ',Data[0])
+		print('SoS = ',Data[1])
+		print('WpAngs = ',Data[3])
+		print('WpSideRat = ',Data[4])
+		print('RefPt = ',Data[5])
+		print('Data Successfully written to Database')
 	IpCalDrift = [(0.48/400)*(Data[6])*(ImScale)*k for k in refptDiffXY]
-	print 'IpCalDrift = ',IpCalDrift
+	print('IpCalDrift = ',IpCalDrift)
 	return IpCalDrift

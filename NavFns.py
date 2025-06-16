@@ -40,7 +40,7 @@ def Init(WpC,Asp,IpTime):
 				WpAng[i] = 270
 		else:
 			WpAng[i] = (math.atan(float(Y2-Y1)/(X2-X1)))*r2d
-			print 'aakash = ',WpAng[i]
+			print('aakash = ',WpAng[i])
 			if X2 > X1:
 				if Y2 < Y1:
 					WpAng[i] = WpAng[i] + 360		
@@ -49,9 +49,9 @@ def Init(WpC,Asp,IpTime):
 		XYdist = math.sqrt(pow((X2 - X1),2)	+ pow((Y2 - Y1),2))		
 		WpAng1[i] = math.atan((Z2 - Z1)/XYdist)
 		WpAng1[i] = WpAng1[i]*r2d
-	print 'WpC =',WpC	
-	print 'WpAng =',WpAng
-	print 'WpAng1 =',WpAng1
+	print('WpC =',WpC)	
+	print('WpAng =',WpAng)
+	print('WpAng1 =',WpAng1)
 	
 	TimeUpdDen = math.sqrt(pow((WpC[1,0] - WpC[0,0]),2) + pow((WpC[1,1] - WpC[0,1]),2) + pow((WpC[1,2] - WpC[0,2]),2))
 	ReqCourse = WpAng[0]*100
@@ -88,8 +88,8 @@ def Move(POS,EUANGS,VEL,Asp,WindM,WindD,DelT):
 # End of Definition Move.		
 	
 def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,i,ti,HeadErr,fn,fn1,TimeUpd,ReqYaw,RollCd,RollConst,InitFlag,WindM,WindD,X2,Y2,TimeOut,TiOutTh):
-	print'.............................................................................................................................'
-	print 'Moving in St Ln'
+	print('.............................................................................................................................')
+	print('Moving in St Ln')
 	r = 0
 	tDiff = 0
 	YawConst = EUANGS[len(EUANGS)-1][2]
@@ -133,10 +133,10 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
 						TimeOut = True
-						print 'timeout'
+						print('timeout')
 						break
 				if TimeOut == True:
-					print 'timeout'
+					print('timeout')
 					break		
 					
 				hdr0 = 0	
@@ -146,7 +146,7 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
 						TimeOut = True
-						print 'timeout'
+						print('timeout')
 						break				
 			
 				hdr = ser.readline()
@@ -179,7 +179,7 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					Asp = float(SensedAsp)
 					if HiL == True:
 						Asp,CAng = BasicFns.AspCAngCalc(Asp,Yaw,WindM,WindD)
-					CurTime = long(SensedCurTime)
+					CurTime = int(SensedCurTime)
 					Lat = float(SensedLat)
 					Lng = float(SensedLng)
 					Alt = float(SensedAlt)
@@ -206,7 +206,7 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					ser.flushInput()
 					ser.flushOutput()
 					ser.write(ToSendStr)	# Send Handshaking Signal									
-					print 'Oh No!!!!'
+					print('Oh No!!!!')
 				
 			
 				YorN = ser.inWaiting()
@@ -215,10 +215,10 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
 						TimeOut = True
-						print 'timeout'
+						print('timeout')
 						break	
 				if TimeOut == True:
-					print 'timeout'
+					print('timeout')
 					break					
 				
 				while ((YorN != 'y') and (YorN != 'n')):
@@ -226,7 +226,7 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 				if YorN == 'y':
 					break	
 			if TimeOut == True:
-				print 'timeout'
+				print('timeout')
 				break													
 						
 			# This section of code is for cotrolling Yaw using Roll
@@ -263,11 +263,11 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 				X1 = POS[len(POS)-1,0]
 				Y1 = POS[len(POS)-1,1]
 				CurDist = math.sqrt(pow((X2 - X1),2) + pow((Y2 - Y1),2))
-				print 'CurDist =',CurDist
-				print 'CVel =',CVel
+				print('CurDist =',CurDist)
+				print('CVel =',CVel)
 				TimeUpd = (float(CurDist)/CVel)
 				TimeUpd = TimeUpd - 4.5	#+ (i+1)*0.8					# 5 seconds for image processing preparation of RPi
-				print 'Time Upd =',TimeUpd		
+				print('Time Upd =',TimeUpd)		
 				if CurDist > 120:
 					if X1 == X2: 									# ReqCourse Calculations
 						if Y2 > Y1:
@@ -286,30 +286,30 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					if ReqCourse < 0:
 						ReqCourse = ReqCourse + 36000				
 					CVel,ReqYaw = BasicFns.YawCvelCalc(Asp,ReqCourse,WindM,WindD)		
-					print 'ReqYaw for update =',ReqYaw		
+					print('ReqYaw for update =',ReqYaw)		
 					TimeUpd = (float(CurDist)/CVel) 
 					TimeUpd = TimeUpd - 4.5  #+ (i+1)*0.8 	# 5 seconds for image processing preparation of RPi
 					if len(PITCH) > 100:
 						Pitch4WT = sum(PITCH[len(PITCH)-50:len(PITCH)])/50
 						WpThComp = (float(Alt)/100)*math.tan(Pitch4WT*cd2r)
 						PitchTimeComp = WpThComp/Asp
-						print 'PitchTimeComp =',PitchTimeComp
+						print('PitchTimeComp =',PitchTimeComp)
 						TimeUpd = TimeUpd - PitchTimeComp
-				print 'Time Upd =',TimeUpd		
+				print('Time Upd =',TimeUpd)		
 
 	if ser != 0:		#show only for real experiments
-		print'.............................................................................................................................'				
-		print 'Message Header =',hdr0,hdr1,hdr2,hdr3
-		print 'receivedFlag (from arduino) =',r		
-		print 'float RollCd from arduino =',f
-		print 'Roll from Plane =',Roll
-		print 'Pitch from Plane =',Pitch
-		print 'Yaw from Plane =',Yaw
-		print 'Airspeed from Plane =',Asp		
-		print 'Current Time =',CurTime
-		print 'Latitude =', Lat
-		print 'Longitude =',Lng
-		print 'Altitude =',Alt
+		print('.............................................................................................................................')				
+		print('Message Header =',hdr0,hdr1,hdr2,hdr3)
+		print('receivedFlag (from arduino) =',r)		
+		print('float RollCd from arduino =',f)
+		print('Roll from Plane =',Roll)
+		print('Pitch from Plane =',Pitch)
+		print('Yaw from Plane =',Yaw)
+		print('Airspeed from Plane =',Asp)		
+		print('Current Time =',CurTime)
+		print('Latitude =', Lat)
+		print('Longitude =',Lng)
+		print('Altitude =',Alt)
 		fn1.write('#### PitchTimeComp =' + str(PitchTimeComp) + ' ####' + '\n')	
 		fn1.write('#### Time Update =' + str(TimeUpd) + ' ####' + '\n')	
 #	np.savetxt('/home/pi/FlightTest/FlightData/GPSSTAT.txt',GPSSTAT)
@@ -321,9 +321,9 @@ def SerialOpsMove(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 
 def SerialOpsMoveDurImPro(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,CAng,ti,HeadErr,fn,ReqYaw,tStart,WindM,WindD,YawErrPrev,RollCd,X2,Y2,ParThCounter,TimeOut,TiOutTh):
 	if ParThCounter % 100 == 0:
-		print'.............................................................................................................................'
-		print 'Moving in St Ln during Image processing'
-		print'.............................................................................................................................'
+		print('.............................................................................................................................')
+		print('Moving in St Ln during Image processing')
+		print('.............................................................................................................................')
 	ParThCounter = ParThCounter + 1	
 	r = 0
 	while 1:
@@ -383,7 +383,7 @@ def SerialOpsMoveDurImPro(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,
 				DelT = time.time() - ti
 				if DelT > TiOutTh:
 					TimeOut = True
-					print 'timeout'
+					print('timeout')
 					break			
 			
 			hdr = ser.readline()
@@ -416,7 +416,7 @@ def SerialOpsMoveDurImPro(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,
 				Asp = float(SensedAsp)
 				if HiL == True:
 					Asp,CAng = BasicFns.AspCAngCalc(Asp,Yaw,WindM,WindD)			
-				CurTime = long(SensedCurTime)
+				CurTime = int(SensedCurTime)
 				Lat = float(SensedLat)
 				Lng = float(SensedLng)
 				Alt = float(SensedAlt)
@@ -448,10 +448,10 @@ def SerialOpsMoveDurImPro(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,
 				DelT = time.time() - ti
 				if DelT > TiOutTh:
 					TimeOut = True
-					print 'timeout'
+					print('timeout')
 					break	
 			if TimeOut == True:
-				print 'timeout'
+				print('timeout')
 				break						
 			while ((YorN != 'y') and (YorN != 'n')):
 				YorN = ser.read()
@@ -488,8 +488,8 @@ def SerialOpsMoveDurImPro(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,
 				X1 = POS[len(POS)-1,0]
 				Y1 = POS[len(POS)-1,1]
 				CurDist = math.sqrt(pow((X2 - X1),2) + pow((Y2 - Y1),2))
-				print 'CurDist from last waypoint =',CurDist
-				print 'CVel =',CVel				
+				print('CurDist from last waypoint =',CurDist)
+				print('CVel =',CVel)				
 	return TVEC,GPSSTAT,POS,EUANGS,VEL,CAng,MainCounter,ti,tStart,YawErrPrev,ParThCounter,TimeOut
 # End of Definition SerialOpsMoveDurImPro.	
 	
@@ -499,9 +499,9 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 	k = 5
 	YawPrev = Yaw
 	YawInit = Yaw
-	print 'Initial Yaw before turn = ',YawInit
+	print('Initial Yaw before turn = ',YawInit)
 	if TurnDir == 1:
-		print 'TurnDir = 1'
+		print('TurnDir = 1')
 		RollCd = (RollCdMax + RollConst)
 		while 1:
 			while 1:
@@ -532,7 +532,7 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
 						TimeOut = True
-						print 'timeout'
+						print('timeout')
 						break					
 					
 				hdr = ser.readline()
@@ -566,7 +566,7 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					Asp = float(SensedAsp)
 					if HiL == True:
 						Asp,CAng = BasicFns.AspCAngCalc(Asp,Yaw,WindM,WindD)					
-					CurTime = long(SensedCurTime)
+					CurTime = int(SensedCurTime)
 					Lat = float(SensedLat)
 					Lng = float(SensedLng)
 					Alt = float(SensedAlt)
@@ -591,7 +591,7 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					ser.flushInput()
 					ser.flushOutput()
 					ser.write(ToSendStr)	# Send Handshaking Signal									
-					print 'Oh No!!!!'
+					print('Oh No!!!!')
 					
 				YorN = ser.inWaiting()
 				while YorN == 0:
@@ -599,10 +599,10 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
 						TimeOut = True
-						print 'timeout'
+						print('timeout')
 						break	
 				if TimeOut == True:
-					print 'timeout'
+					print('timeout')
 					break							
 				while ((YorN != 'y') and (YorN != 'n')):
 					YorN = ser.read()					
@@ -631,7 +631,7 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 			if YawInc < 0:
 				YawInc = YawInc + 36000
 			if YawInc > CdToTurn/2 and YawInc < 30000 and RollFlag == 0:
-				print 'Turn is broken (Half of Turn Achieved)'
+				print('Turn is broken (Half of Turn Achieved)')
 				YawIncInRollInc = YawInc
 				k = k * 0.75				
 				break	
@@ -645,8 +645,8 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 						ReqYaw = ReqYaw + 36000
 					elif ReqYaw >= 36000:						#added later
 						ReqYaw = ReqYaw - 36000	
-					print 'YawIncInRollInc =',YawIncInRollInc
-					print 'ReqYawUpdate = ',ReqYaw	
+					print('YawIncInRollInc =',YawIncInRollInc)
+					print('ReqYawUpdate = ',ReqYaw)	
 					RollFlag = 1		
 					YawIncDec = YawIncInRollInc
 			else:
@@ -656,8 +656,8 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 						ReqYaw = ReqYaw + 36000
 					elif ReqYaw >= 36000:						#added later
 						ReqYaw = ReqYaw = 36000	
-					print 'YawIncDec =',YawIncDec
-					print 'ReqYawUpdate = ',ReqYaw					
+					print('YawIncDec =',YawIncDec)
+					print('ReqYawUpdate = ',ReqYaw)					
 					RollFlag = 1
 			Yaw1 = Yaw
 			ReqYaw1 = ReqYaw	
@@ -665,13 +665,13 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 				Yaw1 = Yaw + 36000
 				ReqYaw1 = ReqYaw + 36000
 			if (YawPrev < ReqYaw) and (Yaw > ReqYaw or Yaw1 > ReqYaw1):
-				print 'Turn is broken'
-				print 'Yaw at turn break =',Yaw
-				print 'YawPrev at turn break =',YawPrev
+				print('Turn is broken')
+				print('Yaw at turn break =',Yaw)
+				print('YawPrev at turn break =',YawPrev)
 				break				
 			YawPrev = Yaw	
 	else:
-		print 'TurnDir = 0'	
+		print('TurnDir = 0')	
 		RollPrev = 0				
 		RollCd = -(RollCdMax + RollConst)
 		while 1:
@@ -702,7 +702,7 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
 						TimeOut = True
-						print 'timeout'
+						print('timeout')
 						break
 				
 				hdr = ser.readline()
@@ -735,7 +735,7 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					Asp = float(SensedAsp)
 					if HiL == True:
 						Asp,CAng = BasicFns.AspCAngCalc(Asp,Yaw,WindM,WindD)					
-					CurTime = long(SensedCurTime)
+					CurTime = int(SensedCurTime)
 					Lat = float(SensedLat)
 					Lng = float(SensedLng)
 					Alt = float(SensedAlt)
@@ -760,7 +760,7 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					ser.flushInput()
 					ser.flushOutput()
 					ser.write(ToSendStr)	# Send Handshaking Signal						
-					print 'Oh No!!!!'
+					print('Oh No!!!!')
 					
 				YorN = ser.inWaiting()
 				while YorN == 0:
@@ -768,10 +768,10 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 					DelT = time.time() - ti
 					if DelT > TiOutTh:
 						TimeOut = True
-						print 'timeout'
+						print('timeout')
 						break	
 				if TimeOut == True:
-					print 'timeout'
+					print('timeout')
 					break							
 				while ((YorN != 'y') and (YorN != 'n')):
 					YorN = ser.read()
@@ -799,7 +799,7 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 			if YawDec < 0:
 				YawDec = YawDec + 36000
 			if YawDec > CdToTurn/2 and YawDec < 30000 and RollFlag == 0:
-				print 'Turn is broken (Half of Turn Achieved)'
+				print('Turn is broken (Half of Turn Achieved)')
 				YawDecInRollDec = YawDec
 				k = k * 0.75
 				break	
@@ -813,8 +813,8 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 						ReqYaw = ReqYaw - 36000		
 					elif ReqYaw < 0:			#added later
 						ReqYaw = ReqYaw + 36000	
-					print 'YawDecInRollDec = ',YawDecInRollDec				
-					print 'ReqYawUpdate = ',ReqYaw		
+					print('YawDecInRollDec = ',YawDecInRollDec)				
+					print('ReqYawUpdate = ',ReqYaw)		
 					RollFlag = 1
 					YawIncDec = YawDecInRollDec
 			else:
@@ -824,8 +824,8 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 						ReqYaw = ReqYaw - 36000	
 					elif ReqYaw < 0:			#added later
 						ReqYaw = ReqYaw + 36000								
-					print 'YawIncDec = ',YawIncDec				
-					print 'ReqYawUpdate = ',ReqYaw
+					print('YawIncDec = ',YawIncDec)				
+					print('ReqYawUpdate = ',ReqYaw)
 					RollFlag = 1	
 			ReqYaw1 = ReqYaw			
 			if (Yaw - YawPrev) > 35000:
@@ -833,20 +833,20 @@ def SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCoun
 				if ReqYaw < 18000:
 					ReqYaw1 = ReqYaw + 36000
 			if (YawPrev > ReqYaw and Yaw < ReqYaw) or (YawPrev > ReqYaw1 and Yaw < ReqYaw1):
-				print 'Turn is broken'
-				print 'Yaw at turn break =',Yaw
-				print 'YawPrev at turn break =',YawPrev
+				print('Turn is broken')
+				print('Yaw at turn break =',Yaw)
+				print('YawPrev at turn break =',YawPrev)
 				break
 			YawPrev = Yaw
-	print'.............................................................................................................................'							
-	print 'Message Header =',hdr0,hdr1,hdr2,hdr3					
-	print 'receivedFlag (from arduino) =',r		
-	print 'float RollCd from arduino =',f
-	print 'Roll from Plane =',Roll
-	print 'Pitch from Plane =',Pitch
-	print 'Yaw from Plane =',Yaw
-	print 'Airspeed from Plane =',Asp		
-	print 'TimeOut inside Turn Function = ', TimeOut
+	print('.............................................................................................................................')							
+	print('Message Header =',hdr0,hdr1,hdr2,hdr3)					
+	print('receivedFlag (from arduino) =',r)		
+	print('float RollCd from arduino =',f)
+	print('Roll from Plane =',Roll)
+	print('Pitch from Plane =',Pitch)
+	print('Yaw from Plane =',Yaw)
+	print('Airspeed from Plane =',Asp)		
+	print('TimeOut inside Turn Function = ', TimeOut)
 	RollCd = RollConst
 	return TVEC,GPSSTAT,POS,EUANGS,VEL,MainCounter,ti,RollCd,YawIncDec,Asp,TimeOut
 # End of Definition SerialOpsTurn.		
