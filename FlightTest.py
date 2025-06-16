@@ -7,7 +7,7 @@ import time
 import struct
 import array
 import threading
-import Queue
+import queue
 import numpy as np
 import math
 import BasicFns
@@ -32,17 +32,17 @@ photo_width  = 800
 photo_height = 600
 #TiOutTh = 2
 
-q_IpCalDrift = Queue.Queue()
-q_POS = Queue.Queue()
-q_EUANGS = Queue.Queue()
-q_VEL = Queue.Queue()
-q_GPSSTAT = Queue.Queue()
-q_ti = Queue.Queue()
-q_MainCounter = Queue.Queue()
-q_POSatVisWp = Queue.Queue()
-q_CAng = Queue.Queue()
-q_TimeOut = Queue.Queue()
-q_ImProFail = Queue.Queue()
+q_IpCalDrift = queue.Queue()
+q_POS = queue.Queue()
+q_EUANGS = queue.Queue()
+q_VEL = queue.Queue()
+q_GPSSTAT = queue.Queue()
+q_ti = queue.Queue()
+q_MainCounter = queue.Queue()
+q_POSatVisWp = queue.Queue()
+q_CAng = queue.Queue()
+q_TimeOut = queue.Queue()
+q_ImProFail = queue.Queue()
 
 # Classes for Parallel Processing
 class ImagProc:
@@ -98,10 +98,10 @@ class ImagProc:
 					IpCalDrift = ImageProcessing.IP(Im,Yaw,0,0,WpNo,False,'0')  
 					ImProTi = time.time() - st_ti_ImPro
 					ImProFlag = 1
-					print 'Overall Image Proceesing Time =',ImProTi
+					print('Overall Image Proceesing Time =',ImProTi)
 					break
 				except:
-					print 'Error in Image Processing'
+					print('Error in Image Processing')
 					ImProFail = True
 					impro_event.set()
 					break	
@@ -155,10 +155,10 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 	l_VisWps = len(VisualWps)
 	TrialNo  = 1
 	while TrialNo <= totTrials:
-		print 'TrialNo = ',TrialNo
+		print('TrialNo = ',TrialNo)
 		if useRPi == True:
 			ser = serial.Serial('/dev/ttyUSB0',57600,timeout=0.5)
-			print("Connected to: "+ser.portstr)
+			print(("Connected to: "+ser.portstr))
 			ser.flushInput()
 			ser.flushOutput()
 			fn = open('/home/pi/FlightTest/FlightData/MainDataFile.txt','w+')
@@ -200,19 +200,19 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 			#WindM = 10
 			#WindD = 225	
 
-			print 'Wind magnitude calculated after auto mode: WindM = ', WindM
-			print 'Wind direction calculated after auto mode: WindD = ', WindD
+			print('Wind magnitude calculated after auto mode: WindM = ', WindM)
+			print('Wind direction calculated after auto mode: WindD = ', WindD)
 			# End of wind calculation
 			ti = time.time()
 			while 1:
-				print '###########################################################################'
-				print '###########################################################################'
+				print('###########################################################################')
+				print('###########################################################################')
 				if ser == 0:								# SIMULATION
 					header = "DATA"
 					ti = time.time()
 
 					WpC = np.append([[0,0]],VisualWps,axis = 0)
-					x = raw_input('Press ENTER to continue.')
+					x = input('Press ENTER to continue.')
 					if not x:
 						ti = time.time()
 						break
@@ -227,14 +227,14 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 					if TimeOut == True:
 						break						
 					rcv0 = float(rcv)
-					print 'rcv0 b4 while =',rcv0
-					print 'Got into FBWB mode'
+					print('rcv0 b4 while =',rcv0)
+					print('Got into FBWB mode')
 					while rcv0 != 70:			# Look for first header
 						rcv = ser.readline()
 						rcv0 = float(rcv)
-						print 'rcv0 inside while =',rcv0		
-					print 'rcv0 aft while =',rcv0	
-					print 'Received 70'	
+						print('rcv0 inside while =',rcv0)		
+					print('rcv0 aft while =',rcv0)	
+					print('Received 70')	
 					rcv = ser.readline()	#	Read second header
 					rcv1 = float(rcv)
 					if rcv1 == 66:				# Second header received
@@ -255,13 +255,13 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 						Asp = float(SensedAsp)
 						if HiL == True:
 							Asp,CAng = BasicFns.AspCAngCalc(Asp,Yaw,WindM,WindD)
-						CurTime = long(SensedCurTime)
+						CurTime = int(SensedCurTime)
 						Lat = float(SensedLat)
 						Lng = float(SensedLng)
 						Alt = float(SensedAlt)		
 						Tail = int(SensedTail)	# Receive Handshaking Signal
-						print 'Tail =',Tail
-						print 'Initial Yaw =',Yaw
+						print('Tail =',Tail)
+						print('Initial Yaw =',Yaw)
 			
 						Yaw = Yaw + 100*HeadErr[round(Yaw/10)]
 						if Yaw > 36000:
@@ -269,14 +269,14 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 						elif Yaw < 0:
 							Yaw = Yaw + 36000
 		
-						print 'Initial Roll =',Roll
-						print 'Initial Pitch =',Pitch
-						print 'Initial Yaw =',Yaw
-						print 'Initial Air Speed =',Asp
-						print 'Current Time =',CurTime
-						print 'Latitude =',Lat
-						print 'Longitude =',Lng
-						print 'Initial Air Speed =',Asp
+						print('Initial Roll =',Roll)
+						print('Initial Pitch =',Pitch)
+						print('Initial Yaw =',Yaw)
+						print('Initial Air Speed =',Asp)
+						print('Current Time =',CurTime)
+						print('Latitude =',Lat)
+						print('Longitude =',Lng)
+						print('Initial Air Speed =',Asp)
 
 						hsSignal = "YS"
 						ToSend = [hsSignal[0],hsSignal[1]]
@@ -305,13 +305,13 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 				if ser == 0:		
 					while WpCounter > 1:
 						if WpCounter > 2:
-							print '###########################################################################'
-							print '################# Navigating towards Waypoint', WpNo,'##########################'
-							print '###########################################################################'
+							print('###########################################################################')
+							print('################# Navigating towards Waypoint', WpNo,'##########################')
+							print('###########################################################################')
 						else:
-							print '###########################################################################'
-							print '###################### Navigating back to Origin ##########################'
-							print '###########################################################################'
+							print('###########################################################################')
+							print('###################### Navigating back to Origin ##########################')
+							print('###########################################################################')
 						# Navigation in straight line.
 						RollCd = 0
 						fn.write('########## FBWB MODE B4 MOVE IN STRAIGHT LINE ##########' + '\n')
@@ -364,14 +364,14 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 						if TimeOut == True:
 							break
 						RollConst = int(RollConst)
-						print 'RollConst = ',RollConst
+						print('RollConst = ',RollConst)
 						# End of Navigation in straight line.
 	
 						if WpCounter > 2:
-							print 'WpCounter = ',WpCounter
-							print ''
-							print 'ATTENTION:: just b4 entering the parallel threads#####'
-							print ''
+							print('WpCounter = ',WpCounter)
+							print('')
+							print('ATTENTION:: just b4 entering the parallel threads#####')
+							print('')
 							fn.write('###### FBWB MODE B4 MOVE IN PARALLEL THREADS ######' + '\n')
 							Yaw = EUANGS[len(EUANGS)-1,2]/100
 							time_b4_impro = time.time()
@@ -391,11 +391,11 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 							Tt.start()
 							It.join()
 							Tt.join()
-							print 'out of thread'
+							print('out of thread')
 	
 							IpCalDrift = q_IpCalDrift.get()
 							ImProFail = q_ImProFail.get()
-							print 'ImProFail =',ImProFail
+							print('ImProFail =',ImProFail)
 							if ImProFail == 1:
 								TimeOut = True
 							POS = q_POS.get()
@@ -404,16 +404,16 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 							GPSSTAT = q_GPSSTAT.get()
 							ti = q_ti.get()
 							MainCounter = q_MainCounter.get()
-							print 'MainCounter =',MainCounter
+							print('MainCounter =',MainCounter)
 							POSatVisWp = q_POSatVisWp.get()
-							print 'POSatVisWp =',POSatVisWp
+							print('POSatVisWp =',POSatVisWp)
 							CAng = q_CAng.get()
-							print 'CAng =',CAng
+							print('CAng =',CAng)
 							TimeOut = q_TimeOut.get()
 							if ImProFail == True:
 								TimeOut = True					
 							if TimeOut == True:
-								print 'Time Out Inside one of the Threads'
+								print('Time Out Inside one of the Threads')
 								break
 	
 							DispDurImPro = [(POS[len(POS)-1,0] - POSatVisWp[0]), (POS[len(POS)-1,1] - POSatVisWp[1])]
@@ -481,11 +481,11 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 					VEL = [Vb]
 
 					CVel,ReqYaw = BasicFns.YawCvelCalc(Asp,ReqCourse,WindM,WindD)
-					print 'ReqYaw after Course and Wind vectors =',ReqYaw
-					print 'Course Velocity after Course and Wind Vectors =',CVel
+					print('ReqYaw after Course and Wind vectors =',ReqYaw)
+					print('Course Velocity after Course and Wind Vectors =',CVel)
 					TimeUpd[0] = D21stWp/Asp
 					TimeUpd[0] = TimeUpd[0] - 4.5		# 4.5 seconds for image processing preparation of RPi
-					print 'TimeUpd =',TimeUpd
+					print('TimeUpd =',TimeUpd)
 
 					#***************************************#
 					#### InitialTurn Goes Here (If used) ####
@@ -505,13 +505,13 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 						if TimeOut == True:
 							break
 						RollConst = int(RollConst)
-						print 'RollConst = ',RollConst
+						print('RollConst = ',RollConst)
 						# End of Navigation in straight line.
 
 						if WpCounter > 2:
-							print ''
-							print 'ATTENTION:: just b4 entering the parallel threads########################################################################'
-							print ''
+							print('')
+							print('ATTENTION:: just b4 entering the parallel threads########################################################################')
+							print('')
 							fn.write('########## FBWB MODE B4 MOVE IN PARALLEL THREADS ##########' + '\n')
 							Yaw = EUANGS[len(EUANGS)-1,2]/100
 							time_b4_impro = time.time()
@@ -531,12 +531,12 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 							Tt.start()
 							It.join()
 							Tt.join()
-							print 'out of thread'
+							print('out of thread')
 
 							IpCalDrift = q_IpCalDrift.get()
-							print 'IpCalDrift =',IpCalDrift
+							print('IpCalDrift =',IpCalDrift)
 							ImProFail = q_ImProFail.get()
-							print 'ImProFail =',ImProFail
+							print('ImProFail =',ImProFail)
 							if ImProFail == 1:
 								TimeOut = True
 							POS = q_POS.get()
@@ -544,27 +544,27 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 							VEL = q_VEL.get()
 							GPSSTAT = q_GPSSTAT.get()
 							ti = q_ti.get()
-							print 'ti =',ti
+							print('ti =',ti)
 							MainCounter = q_MainCounter.get()
-							print 'MainCounter =',MainCounter
+							print('MainCounter =',MainCounter)
 							POSatVisWp = q_POSatVisWp.get()
-							print 'POSatVisWp =',POSatVisWp
+							print('POSatVisWp =',POSatVisWp)
 							CAng = q_CAng.get()
-							print 'CAng =',CAng
+							print('CAng =',CAng)
 							TimeOut = q_TimeOut.get()
-							print 'TimeOut =',TimeOut
+							print('TimeOut =',TimeOut)
 							if ImProFail == True:
 								TimeOut = True					
 							if TimeOut == True:
-								print 'Time Out Inside Thread'
+								print('Time Out Inside Thread')
 								break
 
 							DispDurImPro = [(POS[len(POS)-1,0] - POSatVisWp[0]), (POS[len(POS)-1,1] - POSatVisWp[1])]
 							fn1.write('#### Displacement During Image Processing ####' + '\n')	
 							fn1.write(' '.join(map(str,DispDurImPro)) + '\n\n')
 
-							print 'Waypoint Number = ',WpNo
-							print 'IpCalDrift = ',IpCalDrift
+							print('Waypoint Number = ',WpNo)
+							print('IpCalDrift = ',IpCalDrift)
 
 							WpNo = WpNo + 1
 							fn1.write('#### Drift Calculated by Image Processing (IpCalDrift) ####' + '\n')	
@@ -596,8 +596,8 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 
 							Yaw = EUANGS[len(EUANGS)-1,2]
 
-							print 'X1,Y1 =',X1,Y1
-							print 'X2,Y2 =',X2,Y2
+							print('X1,Y1 =',X1,Y1)
+							print('X2,Y2 =',X2,Y2)
 	
 							if X1 == X2: # ReqCourse Calculations
 								if Y2 > Y1:
@@ -619,10 +619,10 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 								ReqCourse = ReqCourse + 36000		
 							# End of ReqCourse Calculations
 							CVel,ReqYaw = BasicFns.YawCvelCalc(Asp,ReqCourse,WindM,WindD)
-							print 'ReqYaw =',ReqYaw			
+							print('ReqYaw =',ReqYaw)			
 
 							tStart = time.time()
-							print 'Yaw for TurnDir calc = ',Yaw
+							print('Yaw for TurnDir calc = ',Yaw)
 							if abs(ReqYaw -Yaw) < 10:		# Calculation of TurnDir 
 								TurnDir = 2
 							else:
@@ -639,16 +639,16 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 							# End of Computation of RollCd and ReqYaw		
 
 							# Navigation during turn.
-							print '#############################################ATTENTION:: just b4 turn'
-							print 'ReqYaw =',ReqYaw
-							print 'TurnDir =',TurnDir
+							print('#############################################ATTENTION:: just b4 turn')
+							print('ReqYaw =',ReqYaw)
+							print('TurnDir =',TurnDir)
 							CdToTurn1 = ReqYaw - Yaw
 							CdToTurn = abs(CdToTurn1)
 							if TurnDir == 0 and CdToTurn1 > 0:
 								CdToTurn = 36000 - CdToTurn
 							elif TurnDir == 1 and CdToTurn1 < 0:
 								CdToTurn = 36000 - CdToTurn
-							print 'CdToTurn =',CdToTurn	
+							print('CdToTurn =',CdToTurn)	
 							TurnCounter = 0
 							YawIncDec = 0
 							while TurnCounter < 4:		
@@ -667,16 +667,16 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 								elif TurnDir == 0:
 									if ((ReqYawUpd - Yaw) < 0 or (ReqYawUpd - Yaw) > 18000):
 										TVEC,GPSSTAT,POS,EUANGS,VEL,MainCounter,ti,RollCd,YawIncDec,Asp,TimeOut = NavFns.SerialOpsTurn(ser,header,GPSSTAT,POS,EUANGS,VEL,TVEC,HiL,MaintStart,MainCounter,ti,HeadErr,Yaw,ReqYaw,YawIncDec,RollCd,RollCdMax,RollConst,TurnDir,CdToTurn,WindM,WindD,TurnCounter,fn,TimeOut,TiOutTh)
-								print 'TimeOut after Turn = ', TimeOut
+								print('TimeOut after Turn = ', TimeOut)
 								if TimeOut == True:
-									print 'broken first while loop after turn'
+									print('broken first while loop after turn')
 									break		
 
 								TurnCounter = TurnCounter + 1
 		
 								X1 = POS[len(POS)-1,0]
 								Y1 = POS[len(POS)-1,1]	
-								print 'Current Position = ',[X1,Y1]
+								print('Current Position = ',[X1,Y1])
 		
 								if X1 == X2: # ReqCourse Calculations
 									if Y2 > Y1:
@@ -685,7 +685,7 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 										ReqCourse = 27000
 								else: 
 									ReqCourse = math.atan((Y2-Y1)/(X2-X1))*r2cd
-								print 'Airspeed for TimeUpd calc =',Asp
+								print('Airspeed for TimeUpd calc =',Asp)
 								if X2 < X1:
 									ReqCourse = ReqCourse + 18000
 								else:
@@ -697,15 +697,15 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 									ReqCourse = ReqCourse + 36000			
 								# End of ReqYaw Calculations
 								CVel,ReqYaw = BasicFns.YawCvelCalc(Asp,ReqCourse,WindM,WindD)
-								print 'ReqYaw for TurnCounter',TurnCounter,'=',ReqYaw
+								print('ReqYaw for TurnCounter',TurnCounter,'=',ReqYaw)
 								# End of ReqYaw Calculations	
 							# End of Navigation during turn.
 							if TimeOut == True:
-								print 'broken second while loop after turn'
+								print('broken second while loop after turn')
 								break
 						# Calculation of TimeUpd for next section of travel.
 						WpCounter = WpCounter - 1		
-						print 'WpCounter =',WpCounter
+						print('WpCounter =',WpCounter)
 
 						if WpCounter > 1:
 							X1 = POS[len(POS)-1,0]
@@ -714,21 +714,21 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 							X2 = WpC[len(WpC)-WpCounter+1][0]
 							Y2 = WpC[len(WpC)-WpCounter+1][1]
 
-							print 'WpCounter =',WpCounter
-							print 'Current Position =',X1,Y1
-							print 'Next Waypoint =',X2,Y2			
+							print('WpCounter =',WpCounter)
+							print('Current Position =',X1,Y1)
+							print('Next Waypoint =',X2,Y2)			
 							TimeUpd[len(TimeUpd)-WpCounter+1] =  (math.sqrt(pow((X2 - X1),2) + pow((Y2 - Y1),2))/CVel) 
 					#		TimeUpd[len(TimeUpd)-WpCounter+1] =  (math.sqrt(pow((X2 - X1),2) + pow((Y2 - Y1),2))/CVel) - 10
 							fn1.write('#### TimeUpd for next WP:' + str(TimeUpd[len(TimeUpd)-WpCounter+1]) + '####' + '\n\n\n')
-						print 'Airspeed for TimeUpd calc =',Asp
-						print 'TimeUpd[len(TimeUpd)-WpCounter] =', TimeUpd[len(TimeUpd)-WpCounter]
-						print 'TimeUpd =',TimeUpd	
+						print('Airspeed for TimeUpd calc =',Asp)
+						print('TimeUpd[len(TimeUpd)-WpCounter] =', TimeUpd[len(TimeUpd)-WpCounter])
+						print('TimeUpd =',TimeUpd)	
 						# End of calculation of TimeUpd for next section of travel.
 						InitFlag = 0
 		
 		fn.close()
 		fn1.close()
-		print 'Final Position = ',POS[len(POS)-1]
+		print('Final Position = ',POS[len(POS)-1])
 
 		if ser == 0:
 			filename = 'FlightData/DataFiles/TrialNo' + str(TrialNo) + '/MainDataFile.txt'
@@ -753,10 +753,10 @@ def main(useRPi,HiL,totTrials,ImgPro,AutoWpTh,HeadErr,RollCdMax,TiOutTh,AutoWps,
 			filename = npPath + 'TVEC.txt'
 			np.savetxt(filename,TVEC)	
 		if ImProFail == False and WpCounter == 1:
-			print 'Navigation has been successfully successfully accomplished. Data log files have been saved.'
+			print('Navigation has been successfully successfully accomplished. Data log files have been saved.')
 		else:
 			if ImProFail == True:
-				print 'IMAGE PROCESSING ERROR: Navigation has been aborted.'
+				print('IMAGE PROCESSING ERROR: Navigation has been aborted.')
 			else:
-				print 'NAVIGATION INCOMPLETE ERROR: Did not pass through all wps.'
+				print('NAVIGATION INCOMPLETE ERROR: Did not pass through all wps.')
 		TrialNo = TrialNo + 1

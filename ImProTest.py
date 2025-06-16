@@ -25,7 +25,7 @@ Im = cv2.imread('Database/waypoint_'+str(curWpNo)+ '_'+parLdmrkNos+'.jpg')
 # Create Threshold Array
 Thresholds = [NLdmrk,ImageTh,BinaryTh,BinThIncDec,BwAreaTh,LdmrkAngTh,ImCropTh, WpAngTh,WpSiRatTh]
 np.save('Database/Wp'+str(curWpNo)+'Thresholds.npy',Thresholds)
-print 'Thresholds = ',Thresholds
+print('Thresholds = ',Thresholds)
 # End of Create Threshold Array
 Yaw = YawRef
 import ImageProcessing

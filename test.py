@@ -26,5 +26,5 @@ ReqYaw = ReqXyAng - 9000
 ReqYaw = 36000 - ReqYaw
 if ReqYaw >=36000:
 	ReqYaw = ReqYaw - 36000
-print 'ReqXyAng = ',ReqXyAng
-print 'ReqYaw = ',ReqYaw
+print('ReqXyAng = ',ReqXyAng)
+print('ReqYaw = ',ReqYaw)
